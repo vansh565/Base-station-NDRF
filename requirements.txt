@@ -14,3 +14,4 @@ opencv-python==4.10.0.84
 speechrecognition==3.10.4
 edge-tts==6.1.9
 nest-asyncio==1.6.0
+gunicorn==21.2.0
