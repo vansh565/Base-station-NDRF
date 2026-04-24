@@ -3,7 +3,10 @@ flask-cors==4.0.0
 flask-socketio==5.3.6
 google-generativeai==0.8.3
 pillow==10.4.0
-pandas==2.2.2
+
+# 🔥 CHANGE THIS
+pandas==2.1.4
+
 folium==0.17.0
 requests==2.32.3
 python-engineio==4.9.0
