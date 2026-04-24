@@ -1,0 +1,16 @@
+Flask==2.3.3
+flask-cors==4.0.0
+flask-socketio==5.3.6
+google-generativeai==0.8.3
+pillow==10.4.0
+pandas==2.2.2
+folium==0.17.0
+requests==2.32.3
+python-engineio==4.9.0
+python-socketio==5.11.0
+eventlet==0.36.0
+numpy==1.26.4
+opencv-python==4.10.0.84
+speechrecognition==3.10.4
+edge-tts==6.1.9
+nest-asyncio==1.6.0
