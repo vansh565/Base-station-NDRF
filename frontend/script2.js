@@ -1166,5 +1166,31 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+document.addEventListener("DOMContentLoaded", () => {
+
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImg");
+    const closeBtn = document.querySelector(".close-btn");
+
+    // Open image
+    window.openImage = function (img) {
+        modal.style.display = "flex";
+        modalImg.src = img.src;
+    };
+
+    // Close button click
+    closeBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+
+    // Click outside image to close
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+
+});
+
 
 init();
