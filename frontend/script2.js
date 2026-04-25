@@ -1,4 +1,6 @@
 // ==================== GLOBAL VARIABLES ====================
+const socket = io("https://base-station-ndrf-7.onrender.com");
+
 let model = null;
 let cameraActive = false;
 let stream = null;
@@ -16,7 +18,7 @@ const dashCanvas = document.getElementById('dashCanvas');
 const ctx = canvas?.getContext('2d');
 const dashCtx = dashCanvas?.getContext('2d');
 
-const API_BASE = `http://${window.location.hostname}:5000`;
+const API_BASE = "https://base-station-ndrf-7.onrender.com";
 
 // ==================== EQUIPMENT DATABASE ====================
 const equipmentDatabase = [
