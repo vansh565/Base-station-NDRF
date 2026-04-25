@@ -14,8 +14,7 @@ import logging
 from time import time
 import threading
 from math import radians, sin, cos, sqrt, atan2
-from queue import Queue
-import tempfile
+
 import warnings
 
 # Suppress warnings
@@ -32,18 +31,9 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # ==================== FLASK APP INITIALIZATION ====================
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 # ==================== VOICE ASSISTANT GLOBALS ====================
-is_activated = False
-command_queue = Queue()
-voice_loop = None
-voice_enabled = True
-current_command_id = 0
-latest_command_id = 0
-
-
-
 
 # Setup logging to file only (not console)
 logging.basicConfig(
@@ -58,7 +48,7 @@ FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), 'frontend')
 STATIC_DIR = os.path.join(os.path.dirname(BASE_DIR), 'static')
 UPLOAD_DIR = os.path.join(os.path.dirname(BASE_DIR), 'uploads')
 UPLOADED_IMAGES_DIR = os.path.join(os.path.dirname(BASE_DIR), 'uploaded_images')
-AUDIO_DIR = os.path.join(os.path.dirname(BASE_DIR), 'audio_output')
+
 
 # Create directories
 os.makedirs(FRONTEND_DIR, exist_ok=True)
