@@ -787,73 +787,62 @@ async function takeCommand(command) {
 async function generateRoute() {
     addLog('🗺️ Generating route map...', 'info');
     speak('Generating shortest path route...');
-    
+
     const routeStatus = document.getElementById('routeStatus');
     if (routeStatus) routeStatus.innerHTML = '🔄 Generating route...';
-    
+
     const routeMapContainer = document.getElementById('routeMapContainer');
     if (routeMapContainer) {
-        routeMapContainer.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#2ecc71;"><div class="spinner"></div><span style="margin-left:10px;">Generating route map...</span></div>';
+        routeMapContainer.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#2ecc71;">
+                <div class="spinner"></div>
+                <span style="margin-left:10px;">Generating route map...</span>
+            </div>
+        `;
     }
-    
+
     try {
         const response = await fetch(`${API_BASE}/generate_route`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({})
         });
-        
+
         if (!response.ok) {
             throw new Error(`Server error: ${response.status}`);
         }
-        
-    const data = await response.json();
 
-if (data.success && data.map_url) {
-    const iframe = document.createElement('iframe');
+        const data = await response.json();
 
-    // 🔥 FORCE correct backend URL
-    const finalUrl = data.map_url.startsWith("http")
-        ? data.map_url
-        : `https://base-station-ndrf-7.onrender.com/${data.map_url}`;
-
-    console.log("Opening map:", finalUrl);
-
-    iframe.src = finalUrl;
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
-
-    const container = document.getElementById('routeMapContainer');
-    container.innerHTML = '';
-    container.appendChild(iframe);
-
-}  // 🔥 open in new tab
-        
+        // ✅ MAIN FIX: Always use backend URL
         if (data.success && data.map_url) {
+
+            const finalUrl = data.map_url.startsWith("http")
+                ? data.map_url
+                : `${API_BASE}${data.map_url}`;
+
+            console.log("Opening map:", finalUrl);
+
+            const iframe = document.createElement('iframe');
+            iframe.src = finalUrl;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.borderRadius = '12px';
+
+            if (routeMapContainer) {
+                routeMapContainer.innerHTML = '';
+                routeMapContainer.appendChild(iframe);
+            }
+
             if (routeStatus) {
                 routeStatus.innerHTML = `✅ Route generated | Distance: ${data.distance_km} km | Time: ${data.duration_min} min`;
             }
+
             addLog(`✅ Route generated: ${data.distance_km} km`, 'success');
             speak(`Route generated! Distance: ${data.distance_km} km, Time: ${data.duration_min} minutes.`);
-            
-            // Display the folium map in an iframe
-            if (routeMapContainer) {
-                const iframe = document.createElement('iframe');
-                iframe.src = data.map_url;
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.style.borderRadius = '12px';
-                routeMapContainer.innerHTML = '';
-                routeMapContainer.appendChild(iframe);
-                
-                // Hide overlay if exists
-                const overlay = document.getElementById('routeOverlay');
-                if (overlay) overlay.style.display = 'none';
-            }
-            
-            // Update dashboard preview
+
+            // Dashboard preview update
             const dashRoutePreview = document.getElementById('dashRoutePreview');
             if (dashRoutePreview) {
                 dashRoutePreview.innerHTML = `
@@ -866,19 +855,23 @@ if (data.success && data.map_url) {
                     </div>
                 `;
             }
+
         } else {
-            // Fallback to static canvas map if backend fails
-            drawStaticRouteMap();
-            if (routeStatus) routeStatus.innerHTML = `✅ Route generated (Static) | Distance: 2.8 km | Time: 7 min`;
-            speak('Route generated using static map.');
+            throw new Error("Invalid response from server");
         }
+
     } catch (err) {
         console.error('Route error:', err);
         addLog(`❌ Route error: ${err.message}`, 'error');
-        // Fallback to static canvas map
+
+        // fallback static canvas
         drawStaticRouteMap();
-        if (routeStatus) routeStatus.innerHTML = `✅ Route generated (Static) | Distance: 2.8 km | Time: 7 min`;
-        speak('Route generated using static map.');
+
+        if (routeStatus) {
+            routeStatus.innerHTML = `✅ Route generated (Static) | Distance: 2.8 km | Time: 7 min`;
+        }
+
+        speak('Route generated using fallback static map.');
     }
 }
 
