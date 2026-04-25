@@ -22,26 +22,270 @@ const API_BASE = "https://base-station-ndrf-7.onrender.com";
 
 // ==================== EQUIPMENT DATABASE ====================
 const equipmentDatabase = [
-    { name: "Rescue Boat", quantity: 6, category: "Water Rescue", description: "Inflatable rescue boat" },
-    { name: "Life Jacket", quantity: 150, category: "Water Rescue", description: "ISO certified life jacket" },
-    { name: "Stretcher", quantity: 23, category: "Medical", description: "Folding ambulance stretcher" },
-    { name: "First Aid Kit", quantity: 70, category: "Medical", description: "Advanced first aid kit" },
-    { name: "AED", quantity: 4, category: "Medical", description: "Automated External Defibrillator" },
-    { name: "Rescue Rope", quantity: 35, category: "Rope Rescue", description: "Static rescue rope 50m" },
-    { name: "Carabiner", quantity: 150, category: "Rope Rescue", description: "Screw gate carabiner" },
-    { name: "Two-Way Radio", quantity: 50, category: "Communication", description: "VHF/UHF handheld radio" },
-    { name: "Satellite Phone", quantity: 5, category: "Communication", description: "Satellite phone" },
-    { name: "Generator", quantity: 6, category: "Heavy Equipment", description: "Portable generator" },
-    { name: "Thermal Blanket", quantity: 500, category: "Relief", description: "Mylar thermal blanket" },
-    { name: "Tent", quantity: 70, category: "Relief", description: "Family size tent" },
-    { name: "Helmet", quantity: 50, category: "Protective Gear", description: "Multi-purpose rescue helmet" },
-    { name: "Safety Boots", quantity: 100, category: "Protective Gear", description: "Steel toe safety boots" },
-    { name: "Drone", quantity: 3, category: "Search & Rescue", description: "Quadcopter drone with camera" },
-    { name: "Fire Extinguisher", quantity: 40, category: "Fire Rescue", description: "ABC type fire extinguisher" },
-    { name: "Crowbar", quantity: 30, category: "Tools", description: "60cm crowbar for debris removal" },
-    { name: "Shovel", quantity: 50, category: "Tools", description: "Collapsible shovel" }
+    // ==================== WATER RESCUE EQUIPMENT ====================
+    { id: 1, name: "Rescue Boat (Inflatable)", quantity: 6, category: "Water Rescue", subcategory: "Boats", description: "4-person inflatable rescue boat with oars, 15HP motor capable", status: "Available", location: "Warehouse A" },
+    { id: 2, name: "Rescue Boat (Motorized)", quantity: 2, category: "Water Rescue", subcategory: "Boats", description: "Motorized rescue boat with 15HP engine, capacity 6 persons", status: "Available", location: "Dock Station" },
+    { id: 3, name: "Life Jacket (Adult)", quantity: 250, category: "Water Rescue", subcategory: "Safety Gear", description: "ISO 12402 certified life jackets, buoyancy 150N", status: "Available", location: "Warehouse A" },
+    { id: 4, name: "Life Jacket (Child)", quantity: 80, category: "Water Rescue", subcategory: "Safety Gear", description: "Child size life jackets, weight range 15-30kg", status: "Available", location: "Warehouse A" },
+    { id: 5, name: "Throw Rope Bag", quantity: 45, category: "Water Rescue", subcategory: "Ropes", description: "25m floating throw rope with bag, 8mm diameter", status: "Available", location: "Warehouse B" },
+    { id: 6, name: "Water Rescue Rope", quantity: 25, category: "Water Rescue", subcategory: "Ropes", description: "50m floating water rescue rope, 10mm diameter", status: "Available", location: "Warehouse B" },
+    { id: 7, name: "De-watering Pump (4 inch)", quantity: 6, category: "Water Rescue", subcategory: "Pumps", description: "4-inch diesel de-watering pump, 1000 GPM", status: "Available", location: "Equipment Shed" },
+    { id: 8, name: "De-watering Pump (6 inch)", quantity: 3, category: "Water Rescue", subcategory: "Pumps", description: "6-inch high-capacity pump, 2000 GPM", status: "Limited", location: "Equipment Shed" },
+    { id: 9, name: "Submersible Pump", quantity: 8, category: "Water Rescue", subcategory: "Pumps", description: "Electric submersible pump, 2HP motor", status: "Available", location: "Warehouse C" },
+    { id: 10, name: "Water Rescue Suit", quantity: 40, category: "Water Rescue", subcategory: "Protective Gear", description: "Neoprene water rescue suit, thermal protection", status: "Available", location: "Gear Room" },
+    { id: 11, name: "Dry Suit (Cold Water)", quantity: 15, category: "Water Rescue", subcategory: "Protective Gear", description: "Thermal dry suit for cold water rescue, -10°C rating", status: "Available", location: "Gear Room" },
+    { id: 12, name: "Water Rescue Helmet", quantity: 50, category: "Water Rescue", subcategory: "Protective Gear", description: "Water rescue helmet with visor and ear protection", status: "Available", location: "Gear Room" },
+    { id: 13, name: "Swift Water Vest", quantity: 35, category: "Water Rescue", subcategory: "Safety Gear", description: "Swift water rescue vest with quick release", status: "Available", location: "Gear Room" },
+    
+    // ==================== MEDICAL EQUIPMENT ====================
+    { id: 14, name: "Stretcher (Folding)", quantity: 25, category: "Medical", subcategory: "Evacuation", description: "Folding ambulance stretcher, lightweight aluminum", status: "Available", location: "Medical Bay" },
+    { id: 15, name: "Stretcher (Scoop)", quantity: 12, category: "Medical", subcategory: "Evacuation", description: "Scoop stretcher for spinal injuries, X-ray compatible", status: "Available", location: "Medical Bay" },
+    { id: 16, name: "First Aid Kit (Basic)", quantity: 100, category: "Medical", subcategory: "Kits", description: "Basic first aid kit for minor injuries, 50-piece kit", status: "Available", location: "Medical Bay" },
+    { id: 17, name: "First Aid Kit (Advanced)", quantity: 35, category: "Medical", subcategory: "Kits", description: "Advanced trauma kit with tourniquets, bandages", status: "Available", location: "Medical Bay" },
+    { id: 18, name: "Mass Casualty Kit", quantity: 8, category: "Medical", subcategory: "Kits", description: "Mass casualty medical kit for 100+ patients", status: "Available", location: "Medical Bay" },
+    { id: 19, name: "AED (Defibrillator)", quantity: 8, category: "Medical", subcategory: "Equipment", description: "Automated External Defibrillator with pads", status: "Available", location: "Medical Bay" },
+    { id: 20, name: "Oxygen Cylinder", quantity: 20, category: "Medical", subcategory: "Equipment", description: "Portable oxygen cylinder with regulator, 10L", status: "Available", location: "Medical Bay" },
+    { id: 21, name: "BP Monitor (Digital)", quantity: 25, category: "Medical", subcategory: "Diagnostic", description: "Digital blood pressure monitor, automatic", status: "Available", location: "Medical Bay" },
+    { id: 22, name: "Pulse Oximeter", quantity: 40, category: "Medical", subcategory: "Diagnostic", description: "Finger pulse oximeter for SpO2 monitoring", status: "Available", location: "Medical Bay" },
+    { id: 23, name: "Glucometer", quantity: 20, category: "Medical", subcategory: "Diagnostic", description: "Blood glucose monitoring device with strips", status: "Available", location: "Medical Bay" },
+    { id: 24, name: "Stethoscope", quantity: 35, category: "Medical", subcategory: "Diagnostic", description: "Professional dual-head stethoscope", status: "Available", location: "Medical Bay" },
+    { id: 25, name: "Infrared Thermometer", quantity: 30, category: "Medical", subcategory: "Diagnostic", description: "Non-contact infrared thermometer", status: "Available", location: "Medical Bay" },
+    { id: 26, name: "Cervical Collar Set", quantity: 60, category: "Medical", subcategory: "Spinal", description: "Adjustable cervical collars, various sizes", status: "Available", location: "Medical Bay" },
+    { id: 27, name: "Spine Board", quantity: 20, category: "Medical", subcategory: "Spinal", description: "Long spine board with straps, X-ray lucent", status: "Available", location: "Medical Bay" },
+    { id: 28, name: "Head Immobilizer", quantity: 30, category: "Medical", subcategory: "Spinal", description: "Head immobilizer for spine board", status: "Available", location: "Medical Bay" },
+    { id: 29, name: "IV Kit", quantity: 50, category: "Medical", subcategory: "Supplies", description: "IV starter kit with fluids and tubing", status: "Available", location: "Medical Bay" },
+    { id: 30, name: "Surgical Kit", quantity: 15, category: "Medical", subcategory: "Equipment", description: "Field surgical kit for emergencies", status: "Limited", location: "Medical Bay" },
+    
+    // ==================== ROPE RESCUE EQUIPMENT ====================
+    { id: 31, name: "Static Rescue Rope 50m", quantity: 40, category: "Rope Rescue", subcategory: "Ropes", description: "Static rescue rope 11mm, 50m, 30kN strength", status: "Available", location: "Rope Room" },
+    { id: 32, name: "Static Rescue Rope 100m", quantity: 15, category: "Rope Rescue", subcategory: "Ropes", description: "Static rescue rope 11mm, 100m, 30kN", status: "Available", location: "Rope Room" },
+    { id: 33, name: "Dynamic Rope 50m", quantity: 20, category: "Rope Rescue", subcategory: "Ropes", description: "Dynamic rope for climbing rescues", status: "Available", location: "Rope Room" },
+    { id: 34, name: "Screw Gate Carabiner", quantity: 200, category: "Rope Rescue", subcategory: "Hardware", description: "Screw gate carabiner, 25kN rating", status: "Available", location: "Rope Room" },
+    { id: 35, name: "Auto-locking Carabiner", quantity: 100, category: "Rope Rescue", subcategory: "Hardware", description: "Auto-locking carabiner, 25kN", status: "Available", location: "Rope Room" },
+    { id: 36, name: "Figure 8 Descender", quantity: 50, category: "Rope Rescue", subcategory: "Descenders", description: "Figure 8 descender device", status: "Available", location: "Rope Room" },
+    { id: 37, name: "Rack Descender", quantity: 25, category: "Rope Rescue", subcategory: "Descenders", description: "Rack descender for SRT rescue", status: "Available", location: "Rope Room" },
+    { id: 38, name: "Handled Ascender", quantity: 45, category: "Rope Rescue", subcategory: "Ascenders", description: "Handled ascender for rope climbing", status: "Available", location: "Rope Room" },
+    { id: 39, name: "Chest Ascender", quantity: 25, category: "Rope Rescue", subcategory: "Ascenders", description: "Chest ascender for SRT systems", status: "Available", location: "Rope Room" },
+    { id: 40, name: "Rescue Pulley", quantity: 60, category: "Rope Rescue", subcategory: "Pulleys", description: "Rescue pulley, 36kN rating, ball bearings", status: "Available", location: "Rope Room" },
+    { id: 41, name: "Edge Protector", quantity: 35, category: "Rope Rescue", subcategory: "Protection", description: "Edge protector for rope protection", status: "Available", location: "Rope Room" },
+    { id: 42, name: "Rope Grab", quantity: 40, category: "Rope Rescue", subcategory: "Hardware", description: "Rope grab for tensioned systems", status: "Available", location: "Rope Room" },
+    { id: 43, name: "Full Body Harness", quantity: 60, category: "Rope Rescue", subcategory: "Harnesses", description: "Full body rescue harness, adjustable", status: "Available", location: "Rope Room" },
+    { id: 44, name: "Seat Harness", quantity: 35, category: "Rope Rescue", subcategory: "Harnesses", description: "Seat harness for rope access", status: "Available", location: "Rope Room" },
+    
+    // ==================== COMMUNICATION EQUIPMENT ====================
+    { id: 45, name: "VHF Handheld Radio", quantity: 60, category: "Communication", subcategory: "Radios", description: "VHF handheld two-way radio, 5W, waterproof", status: "Available", location: "Comm Center" },
+    { id: 46, name: "UHF Handheld Radio", quantity: 40, category: "Communication", subcategory: "Radios", description: "UHF handheld two-way radio, 5W", status: "Available", location: "Comm Center" },
+    { id: 47, name: "Base Station Radio", quantity: 6, category: "Communication", subcategory: "Radios", description: "Base station radio for command center", status: "Available", location: "Comm Center" },
+    { id: 48, name: "Satellite Phone", quantity: 10, category: "Communication", subcategory: "Satellite", description: "Satellite phone for remote areas, global coverage", status: "Available", location: "Comm Center" },
+    { id: 49, name: "Portable Repeater", quantity: 4, category: "Communication", subcategory: "Repeaters", description: "Portable radio repeater system, 20km range", status: "Available", location: "Comm Center" },
+    { id: 50, name: "Megaphone", quantity: 15, category: "Communication", subcategory: "Public Address", description: "Battery-powered megaphone, 1km range", status: "Available", location: "Comm Center" },
+    { id: 51, name: "Emergency Whistle", quantity: 200, category: "Communication", subcategory: "Signaling", description: "Emergency whistle with lanyard, 120dB", status: "Available", location: "Comm Center" },
+    { id: 52, name: "Signal Mirror", quantity: 50, category: "Communication", subcategory: "Signaling", description: "Glass signal mirror for daylight signaling", status: "Available", location: "Comm Center" },
+    
+    // ==================== HEAVY EQUIPMENT ====================
+    { id: 53, name: "Gas Cutter", quantity: 6, category: "Heavy Equipment", subcategory: "Cutting", description: "Portable gas cutting torch set", status: "Available", location: "Tool Shed" },
+    { id: 54, name: "Chain Saw (Gas)", quantity: 10, category: "Heavy Equipment", subcategory: "Cutting", description: "Gas-powered chain saw for trees/debris, 20\" bar", status: "Available", location: "Tool Shed" },
+    { id: 55, name: "Concrete Cutter", quantity: 4, category: "Heavy Equipment", subcategory: "Cutting", description: "Gas-powered concrete cutter, 14\" blade", status: "Limited", location: "Tool Shed" },
+    { id: 56, name: "Generator (2kW)", quantity: 8, category: "Heavy Equipment", subcategory: "Power", description: "2kW portable generator, silent type", status: "Available", location: "Power House" },
+    { id: 57, name: "Generator (5kW)", quantity: 4, category: "Heavy Equipment", subcategory: "Power", description: "5kW portable generator, diesel", status: "Available", location: "Power House" },
+    { id: 58, name: "Generator (10kW)", quantity: 2, category: "Heavy Equipment", subcategory: "Power", description: "10kW industrial generator", status: "Available", location: "Power House" },
+    { id: 59, name: "LED Flood Light", quantity: 20, category: "Heavy Equipment", subcategory: "Lighting", description: "LED flood light for night operations, 10,000 lumens", status: "Available", location: "Tool Shed" },
+    { id: 60, name: "Search Light", quantity: 12, category: "Heavy Equipment", subcategory: "Lighting", description: "Portable high-intensity search light, 5000 lumens", status: "Available", location: "Tool Shed" },
+    { id: 61, name: "LED Headlamp", quantity: 100, category: "Heavy Equipment", subcategory: "Lighting", description: "LED headlamp for hands-free lighting, 300 lumens", status: "Available", location: "Tool Shed" },
+    
+    // ==================== RELIEF SUPPLIES ====================
+    { id: 62, name: "Thermal Blanket", quantity: 1000, category: "Relief", subcategory: "Blankets", description: "Mylar thermal blanket for hypothermia prevention", status: "Available", location: "Relief Warehouse" },
+    { id: 63, name: "Sleeping Bag (Cold)", quantity: 200, category: "Relief", subcategory: "Bedding", description: "Cold weather sleeping bag, -10°C rating", status: "Available", location: "Relief Warehouse" },
+    { id: 64, name: "Family Tent", quantity: 100, category: "Relief", subcategory: "Shelter", description: "Family size tent for 4-6 persons", status: "Available", location: "Relief Warehouse" },
+    { id: 65, name: "Relief Shelter", quantity: 30, category: "Relief", subcategory: "Shelter", description: "Large relief shelter for 50+ persons", status: "Available", location: "Relief Warehouse" },
+    { id: 66, name: "Water Purifier", quantity: 20, category: "Relief", subcategory: "Water", description: "Portable water purifier, 1000L/day capacity", status: "Available", location: "Relief Warehouse" },
+    { id: 67, name: "Water Tank (1000L)", quantity: 10, category: "Relief", subcategory: "Water", description: "Collapsible water storage tank, 1000L", status: "Available", location: "Relief Warehouse" },
+    { id: 68, name: "Emergency Food Packet", quantity: 5000, category: "Relief", subcategory: "Food", description: "Emergency food ration packet, 2000 calories", status: "Available", location: "Relief Warehouse" },
+    { id: 69, name: "Reusable Water Bottle", quantity: 1000, category: "Relief", subcategory: "Water", description: "Reusable water bottle with filter", status: "Available", location: "Relief Warehouse" },
+    { id: 70, name: "Hygiene Kit", quantity: 500, category: "Relief", subcategory: "Hygiene", description: "Complete hygiene kit with soap, toothbrush, sanitizer", status: "Available", location: "Relief Warehouse" },
+    
+    // ==================== PROTECTIVE GEAR ====================
+    { id: 71, name: "Rescue Helmet", quantity: 100, category: "Protective Gear", subcategory: "Head", description: "Multi-purpose rescue helmet, ANSI certified", status: "Available", location: "Gear Room" },
+    { id: 72, name: "Safety Glasses", quantity: 200, category: "Protective Gear", subcategory: "Eye", description: "Impact-resistant safety glasses", status: "Available", location: "Gear Room" },
+    { id: 73, name: "Rescue Gloves", quantity: 200, category: "Protective Gear", subcategory: "Hand", description: "Cut-resistant rescue gloves, Level 5 protection", status: "Available", location: "Gear Room" },
+    { id: 74, name: "Medical Gloves", quantity: 1000, category: "Protective Gear", subcategory: "Hand", description: "Medical examination gloves, nitrile", status: "Available", location: "Medical Bay" },
+    { id: 75, name: "N95 Mask", quantity: 2000, category: "Protective Gear", subcategory: "Respiratory", description: "N95 respirator mask, NIOSH approved", status: "Available", location: "Medical Bay" },
+    { id: 76, name: "Gas Mask", quantity: 50, category: "Protective Gear", subcategory: "Respiratory", description: "Full-face gas mask with filters, CBRN rated", status: "Available", location: "Gear Room" },
+    { id: 77, name: "Safety Boots", quantity: 200, category: "Protective Gear", subcategory: "Foot", description: "Steel toe safety boots, slip resistant", status: "Available", location: "Gear Room" },
+    { id: 78, name: "High Vis Vest", quantity: 300, category: "Protective Gear", subcategory: "Visibility", description: "High visibility safety vest, Class 3", status: "Available", location: "Gear Room" },
+    { id: 79, name: "Body Armor", quantity: 30, category: "Protective Gear", subcategory: "Body", description: "Protective body armor vest, Level IIIA", status: "Limited", location: "Gear Room" },
+    
+    // ==================== SEARCH & RESCUE ====================
+    { id: 80, name: "Thermal Camera", quantity: 6, category: "Search & Rescue", subcategory: "Detection", description: "Handheld thermal imaging camera, 640x480", status: "Available", location: "Tech Room" },
+    { id: 81, name: "Search Camera", quantity: 8, category: "Search & Rescue", subcategory: "Detection", description: "Cable search camera for confined spaces, 30m", status: "Available", location: "Tech Room" },
+    { id: 82, name: "Vibration Detector", quantity: 6, category: "Search & Rescue", subcategory: "Detection", description: "Seismic vibration detector for trapped persons", status: "Available", location: "Tech Room" },
+    { id: 83, name: "Acoustic Listener", quantity: 6, category: "Search & Rescue", subcategory: "Detection", description: "Acoustic listening device for rescue", status: "Available", location: "Tech Room" },
+    { id: 84, name: "Quadcopter Drone", quantity: 5, category: "Search & Rescue", subcategory: "Aerial", description: "Quadcopter drone with 4K camera, 30min flight", status: "Available", location: "Tech Room" },
+    { id: 85, name: "Thermal Drone", quantity: 2, category: "Search & Rescue", subcategory: "Aerial", description: "Thermal drone for night search operations", status: "Available", location: "Tech Room" },
+    { id: 86, name: "Search Pole", quantity: 20, category: "Search & Rescue", subcategory: "Tools", description: "Extendable search pole with hook, 6m", status: "Available", location: "Tool Shed" },
+    { id: 87, name: "Rescue Hook", quantity: 30, category: "Search & Rescue", subcategory: "Tools", description: "Multi-purpose rescue hook, 2m length", status: "Available", location: "Tool Shed" },
+    
+    // ==================== FIRE RESCUE ====================
+    { id: 88, name: "Fire Extinguisher (ABC)", quantity: 60, category: "Fire Rescue", subcategory: "Extinguishers", description: "ABC type fire extinguisher, 6kg", status: "Available", location: "Fire Station" },
+    { id: 89, name: "Fire Extinguisher (CO2)", quantity: 20, category: "Fire Rescue", subcategory: "Extinguishers", description: "CO2 fire extinguisher for electrical fires", status: "Available", location: "Fire Station" },
+    { id: 90, name: "Fire Blanket", quantity: 40, category: "Fire Rescue", subcategory: "Blankets", description: "Fire blanket for small fires, 1.8m x 1.8m", status: "Available", location: "Fire Station" },
+    { id: 91, name: "Fire Hose (50m)", quantity: 10, category: "Fire Rescue", subcategory: "Hoses", description: "50m fire hose with couplings, 2.5\" diameter", status: "Available", location: "Fire Station" },
+    { id: 92, name: "Fire Nozzle", quantity: 20, category: "Fire Rescue", subcategory: "Nozzles", description: "Adjustable fire fighting nozzle, 250 GPM", status: "Available", location: "Fire Station" },
+    { id: 93, name: "Firefighter Turnout Gear", quantity: 20, category: "Fire Rescue", subcategory: "Protective Gear", description: "Complete firefighter protective gear, NFPA certified", status: "Available", location: "Fire Station" },
+    { id: 94, name: "SCBA Set", quantity: 15, category: "Fire Rescue", subcategory: "Breathing", description: "Self-contained breathing apparatus, 45min", status: "Available", location: "Fire Station" },
+    
+    // ==================== TOOLS ====================
+    { id: 95, name: "Crowbar", quantity: 60, category: "Tools", subcategory: "Prying", description: "60cm crowbar for debris removal", status: "Available", location: "Tool Shed" },
+    { id: 96, name: "Sledgehammer", quantity: 30, category: "Tools", subcategory: "Breaking", description: "4kg sledgehammer for breaking", status: "Available", location: "Tool Shed" },
+    { id: 97, name: "Collapsible Shovel", quantity: 100, category: "Tools", subcategory: "Digging", description: "Collapsible shovel for digging", status: "Available", location: "Tool Shed" },
+    { id: 98, name: "Pickaxe", quantity: 40, category: "Tools", subcategory: "Digging", description: "Pickaxe for debris", status: "Available", location: "Tool Shed" },
+    { id: 99, name: "Fireman's Axe", quantity: 50, category: "Tools", subcategory: "Cutting", description: "Fireman's axe for rescue, forged steel", status: "Available", location: "Tool Shed" },
+    { id: 100, name: "Multitool Kit", quantity: 150, category: "Tools", subcategory: "Multi-purpose", description: "Professional multitool with pliers, knife, screwdrivers", status: "Available", location: "Tool Shed" }
 ];
 
+// ==================== SEARCH EQUIPMENT FUNCTION ====================
+function searchEquipment(query) {
+    if (!query || query.trim() === "") {
+        displayAllEquipment();
+        return;
+    }
+
+    const searchTerm = query.toLowerCase().trim();
+    const results = equipmentDatabase.filter(item => 
+        item.name.toLowerCase().includes(searchTerm) ||
+        item.category.toLowerCase().includes(searchTerm) ||
+        item.subcategory.toLowerCase().includes(searchTerm) ||
+        item.description.toLowerCase().includes(searchTerm) ||
+        item.status.toLowerCase().includes(searchTerm) ||
+        item.location.toLowerCase().includes(searchTerm)
+    );
+    
+    displayEquipmentResults(results, searchTerm);
+    speak(`Found ${results.length} items matching ${searchTerm}`);
+}
+
+function displayAllEquipment() {
+    displayEquipmentResults(equipmentDatabase, "all");
+    speak(`Total ${equipmentDatabase.length} equipment items in database`);
+}
+
+function displayEquipmentResults(results, searchTerm) {
+    const container = document.getElementById('equipResults');
+    if (!container) return;
+    
+    if (results.length === 0) {
+        container.innerHTML = `
+            <div class="equip-idle" style="text-align: center; padding: 40px;">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <h3 style="color: #dc2626; margin-top: 15px;">No Results Found</h3>
+                <p style="color: #8a9bae;">No equipment matching "${searchTerm}"</p>
+                <p style="color: #5a6e7a; font-size: 12px; margin-top: 10px;">Try: boat, medical, rope, radio, stretcher, drone, generator</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Group by category
+    const grouped = {};
+    results.forEach(item => {
+        if (!grouped[item.category]) grouped[item.category] = [];
+        grouped[item.category].push(item);
+    });
+    
+    let html = `
+        <div style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <span style="color: #2ecc71; font-size: 14px;">🔍 Search Results</span>
+                    <span style="color: #8a9bae; margin-left: 10px;">Found ${results.length} item(s)</span>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <span style="background: #1a3c2c; padding: 4px 12px; border-radius: 20px; font-size: 11px; color: #2ecc71;">✓ Available: ${results.filter(i => i.status === "Available").length}</span>
+                    <span style="background: #3c2a1a; padding: 4px 12px; border-radius: 20px; font-size: 11px; color: #f39c12;">⚠ Limited: ${results.filter(i => i.status === "Limited").length}</span>
+                </div>
+            </div>
+    `;
+    
+    for (const [category, items] of Object.entries(grouped)) {
+        const categoryColors = {
+            "Water Rescue": "#00aaff",
+            "Medical": "#dc2626",
+            "Rope Rescue": "#f39c12",
+            "Communication": "#3b82f6",
+            "Heavy Equipment": "#8b5cf6",
+            "Relief": "#10b981",
+            "Protective Gear": "#ec4899",
+            "Search & Rescue": "#06b6d4",
+            "Fire Rescue": "#ef4444",
+            "Tools": "#6b7280"
+        };
+        const catColor = categoryColors[category] || "#2ecc71";
+        
+        html += `
+            <div style="margin-bottom: 25px; background: rgba(15, 17, 26, 0.5); border-radius: 12px; overflow: hidden;">
+                <div style="background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1)); padding: 12px 16px; border-bottom: 1px solid rgba(46, 204, 113, 0.2);">
+                    <span style="color: ${catColor}; font-size: 14px; font-weight: bold;">📁 ${category}</span>
+                    <span style="color: #5a6e7a; margin-left: 10px; font-size: 11px;">${items.length} items</span>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                        <thead>
+                            <tr style="background: #0a0c12; border-bottom: 1px solid #2ecc71;">
+                                <th style="padding: 12px 10px; text-align: left; color: #8a9bae;">Item Name</th>
+                                <th style="padding: 12px 10px; text-align: center; color: #8a9bae;">Qty</th>
+                                <th style="padding: 12px 10px; text-align: left; color: #8a9bae;">Subcategory</th>
+                                <th style="padding: 12px 10px; text-align: left; color: #8a9bae;">Description</th>
+                                <th style="padding: 12px 10px; text-align: center; color: #8a9bae;">Status</th>
+                                <th style="padding: 12px 10px; text-align: left; color: #8a9bae;">Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+        
+        items.forEach(item => {
+            const statusColor = item.status === "Available" ? "#2ecc71" : "#f39c12";
+            const statusText = item.status === "Available" ? "✓ Available" : "⚠ Limited";
+            
+            html += `
+                <tr style="border-bottom: 1px solid #1a2c22; transition: background 0.2s;" onmouseover="this.style.background='rgba(46,204,113,0.05)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 12px 10px; color: #c8d1e6; font-weight: 500;">${item.name}</td>
+                    <td style="padding: 12px 10px; text-align: center; color: #2ecc71; font-weight: bold;">${item.quantity}</td>
+                    <td style="padding: 12px 10px; color: #8a9bae;">${item.subcategory}</td>
+                    <td style="padding: 12px 10px; color: #5a6e7a; font-size: 11px;">${item.description}</td>
+                    <td style="padding: 12px 10px; text-align: center;">
+                        <span style="background: ${statusColor}20; color: ${statusColor}; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: bold;">${statusText}</span>
+                    </td>
+                    <td style="padding: 12px 10px; color: #6b7280; font-size: 11px;">📍 ${item.location}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+    
+    html += `</div>`;
+    container.innerHTML = html;
+    
+    // Update dashboard stats
+    const totalItems = equipmentDatabase.reduce((sum, item) => sum + item.quantity, 0);
+    const categories = [...new Set(equipmentDatabase.map(i => i.category))];
+    document.getElementById('dashEquipCount').innerHTML = `<span style="font-size: 24px;">${equipmentDatabase.length}</span>`;
+    document.getElementById('dashCatCount').innerHTML = `<span style="font-size: 24px;">${categories.length}</span>`;
+}
+
+function loadEquipment() {
+    displayAllEquipment();
+}
 // ==================== DOCUMENTATION FUNCTION ====================
 window.showDocumentation = function() {
     console.log("Documentation button clicked!");
