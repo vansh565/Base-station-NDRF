@@ -807,15 +807,28 @@ async function generateRoute() {
             throw new Error(`Server error: ${response.status}`);
         }
         
-       const data = await response.json();
+    const data = await response.json();
 
-let finalUrl = data.map_url.startsWith("http")
-    ? data.map_url
-    : `${API_BASE}/${data.map_url}`;
+if (data.success && data.map_url) {
+    const iframe = document.createElement('iframe');
 
-console.log("Opening map:", finalUrl);
+    // 🔥 FORCE correct backend URL
+    const finalUrl = data.map_url.startsWith("http")
+        ? data.map_url
+        : `https://base-station-ndrf-7.onrender.com/${data.map_url}`;
 
-window.open(finalUrl, "_blank");   // 🔥 open in new tab
+    console.log("Opening map:", finalUrl);
+
+    iframe.src = finalUrl;
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+
+    const container = document.getElementById('routeMapContainer');
+    container.innerHTML = '';
+    container.appendChild(iframe);
+
+}  // 🔥 open in new tab
         
         if (data.success && data.map_url) {
             if (routeStatus) {
