@@ -807,7 +807,15 @@ async function generateRoute() {
             throw new Error(`Server error: ${response.status}`);
         }
         
-        const data = await response.json();
+       const data = await response.json();
+
+let finalUrl = data.map_url.startsWith("http")
+    ? data.map_url
+    : `${API_BASE}/${data.map_url}`;
+
+console.log("Opening map:", finalUrl);
+
+window.open(finalUrl, "_blank");   // 🔥 open in new tab
         
         if (data.success && data.map_url) {
             if (routeStatus) {
