@@ -735,8 +735,7 @@ if __name__ == "__main__":
     print("")
     
     # Start voice bot in background
-    if os.environ.get("RENDER") != "true":
-    start_voice_bot()
+   
     
     # Run Flask app with SocketIO
  if __name__ == "__main__":
