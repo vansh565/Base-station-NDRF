@@ -8,6 +8,8 @@ let humanOnly = false;
 let recognition = null;
 let listening = false;
 let startTime = Date.now();
+let lastDetectionTime = 0;
+const DETECTION_INTERVAL = 100;
 
 // DOM Elements
 const video = document.getElementById('cameraVideo');
@@ -20,7 +22,6 @@ const dashCtx = dashCanvas?.getContext('2d');
 const API_BASE = "https://base-station-ndrf-7.onrender.com";
 
 // ==================== EQUIPMENT DATABASE ====================
-// ==================== PROFESSIONAL EQUIPMENT DATABASE ====================
 const equipmentDatabase = [
     // ==================== WATER RESCUE EQUIPMENT ====================
     { id: 1, name: "Rescue Boat (Inflatable)", quantity: 6, category: "Water Rescue", subcategory: "Boats", description: "4-person inflatable rescue boat with oars, 15HP motor capable", status: "Available", location: "Warehouse A" },
@@ -143,7 +144,198 @@ const equipmentDatabase = [
     { id: 100, name: "Multitool Kit", quantity: 150, category: "Tools", subcategory: "Multi-purpose", description: "Professional multitool with pliers, knife, screwdrivers", status: "Available", location: "Tool Shed" }
 ];
 
-// ==================== SEARCH EQUIPMENT FUNCTION ====================
+// ==================== CAMERA FUNCTIONS (FIXED) ====================
+
+async function loadModel() {
+    try {
+        if (typeof cocoSsd === 'undefined') {
+            addLog('❌ COCO-SSD library not loaded!', 'error');
+            return false;
+        }
+        
+        addLog('📦 Loading object detection model...', 'info');
+        model = await cocoSsd.load({ base: 'mobilenet_v2' });
+        addLog('✅ Object detection model loaded successfully', 'success');
+        return true;
+    } catch(err) {
+        addLog('❌ Model loading error: ' + err.message, 'error');
+        return false;
+    }
+}
+
+async function startCamera() {
+    try {
+        if (stream) stopCamera();
+        
+        addLog('📷 Requesting camera access...', 'info');
+        
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'environment' }
+        });
+        
+        if (video) video.srcObject = stream;
+        if (dashVideo) dashVideo.srcObject = stream;
+        
+        await new Promise((resolve) => {
+            if (video) {
+                video.onloadedmetadata = () => {
+                    video.play();
+                    resolve();
+                };
+            } else resolve();
+        });
+        
+        cameraActive = true;
+        addLog('✅ Camera started successfully', 'success');
+        
+        const placeholder = document.getElementById('cameraPlaceholder');
+        if (placeholder) placeholder.style.display = 'none';
+        
+        const setCanvasDimensions = () => {
+            if (video && video.videoWidth && video.videoWidth > 0) {
+                if (canvas) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                }
+                if (dashCanvas) {
+                    dashCanvas.width = video.videoWidth;
+                    dashCanvas.height = video.videoHeight;
+                }
+                startDetection();
+                addLog('🎯 Detection started', 'success');
+            } else {
+                setTimeout(setCanvasDimensions, 100);
+            }
+        };
+        setCanvasDimensions();
+        
+        speak("Camera started. Object detection is now active.");
+        
+    } catch(err) {
+        addLog('❌ Camera error: ' + err.message, 'error');
+        if (err.name === 'NotAllowedError') speak('Camera access denied.');
+        else if (err.name === 'NotFoundError') speak('No camera found.');
+        else speak('Failed to start camera.');
+    }
+}
+
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    }
+    
+    cameraActive = false;
+    
+    if (video) video.srcObject = null;
+    if (dashVideo) dashVideo.srcObject = null;
+    
+    if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (dashCtx && dashCanvas) dashCtx.clearRect(0, 0, dashCanvas.width, dashCanvas.height);
+    
+    const placeholder = document.getElementById('cameraPlaceholder');
+    if (placeholder) placeholder.style.display = 'flex';
+    
+    addLog('🛑 Camera stopped', 'info');
+}
+
+async function startDetection() {
+    async function detect() {
+        if (!cameraActive || !model || !video || !video.videoWidth || video.paused) {
+            requestAnimationFrame(detect);
+            return;
+        }
+        
+        try {
+            const now = Date.now();
+            if (now - lastDetectionTime >= DETECTION_INTERVAL) {
+                lastDetectionTime = now;
+                const predictions = await model.detect(video);
+                drawBoxes(predictions);
+                updateDetectionList(predictions);
+                
+                if (humanOnly) {
+                    updateDashboardDetection(predictions.filter(p => p.class === 'person').length);
+                } else {
+                    updateDashboardDetection(predictions.length);
+                }
+            } else {
+                if (window.lastPredictions) drawBoxes(window.lastPredictions);
+            }
+        } catch(err) {
+            console.error('Detection error:', err);
+        }
+        
+        requestAnimationFrame(detect);
+    }
+    detect();
+}
+
+function drawBoxes(predictions) {
+    if (!ctx || !dashCtx) return;
+    
+    window.lastPredictions = predictions;
+    
+    if (canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (dashCanvas) dashCtx.clearRect(0, 0, dashCanvas.width, dashCanvas.height);
+    
+    if (!boxesVisible) return;
+    
+    ctx.font = '14px monospace';
+    ctx.lineWidth = 2;
+    dashCtx.font = '14px monospace';
+    dashCtx.lineWidth = 2;
+    
+    predictions.forEach(pred => {
+        if (humanOnly && pred.class !== 'person') return;
+        
+        const [x, y, width, height] = pred.bbox;
+        const confidence = Math.round(pred.score * 100);
+        let color = pred.class === 'person' ? '#2ecc71' : (pred.class === 'car' ? '#f39c12' : '#3b82f6');
+        
+        ctx.strokeStyle = color;
+        ctx.strokeRect(x, y, width, height);
+        
+        const label = `${pred.class} ${confidence}%`;
+        const textWidth = ctx.measureText(label).width;
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(x, y - 20, textWidth + 6, 18);
+        ctx.fillStyle = color;
+        ctx.fillText(label, x + 2, y - 5);
+        
+        dashCtx.strokeStyle = color;
+        dashCtx.strokeRect(x, y, width, height);
+        dashCtx.fillStyle = 'rgba(0,0,0,0.6)';
+        dashCtx.fillRect(x, y - 20, textWidth + 6, 18);
+        dashCtx.fillStyle = color;
+        dashCtx.fillText(label, x + 2, y - 5);
+    });
+}
+
+function updateDetectionList(predictions) {
+    const detList = document.getElementById('detectionList');
+    if (!detList) return;
+    
+    const filtered = humanOnly ? predictions.filter(p => p.class === 'person') : predictions;
+    
+    if (filtered.length > 0) {
+        detList.innerHTML = `<h3 style="color:#2ecc71;">🎯 Detected (${filtered.length})</h3>` +
+            filtered.slice(0, 8).map(p => 
+                `<div class="detection-item"><span>${p.class}</span><span>${Math.round(p.score * 100)}%</span></div>`
+            ).join('');
+    } else {
+        detList.innerHTML = `<h3 style="color:#2ecc71;">🎯 Detections</h3><div style="color:#5a6e7a; text-align:center; padding:20px;">${humanOnly ? 'No people detected' : 'No objects detected'}</div>`;
+    }
+}
+
+function updateDashboardDetection(count) {
+    const dashDetect = document.getElementById('dashDetect');
+    if (dashDetect) {
+        dashDetect.innerHTML = `<div style="text-align:center;"><div style="color:#2ecc71; font-size:20px;">${count}</div><div style="color:#5a6e7a; font-size:10px;">${humanOnly ? 'PEOPLE' : 'OBJECTS'}</div></div>`;
+    }
+}
+
+// ==================== EQUIPMENT FUNCTIONS ====================
 function searchEquipment(query) {
     if (!query || query.trim() === "") {
         displayAllEquipment();
@@ -153,11 +345,7 @@ function searchEquipment(query) {
     const searchTerm = query.toLowerCase().trim();
     const results = equipmentDatabase.filter(item => 
         item.name.toLowerCase().includes(searchTerm) ||
-        item.category.toLowerCase().includes(searchTerm) ||
-        item.subcategory.toLowerCase().includes(searchTerm) ||
-        item.description.toLowerCase().includes(searchTerm) ||
-        item.status.toLowerCase().includes(searchTerm) ||
-        item.location.toLowerCase().includes(searchTerm)
+        item.category.toLowerCase().includes(searchTerm)
     );
     
     displayEquipmentResults(results, searchTerm);
@@ -166,7 +354,6 @@ function searchEquipment(query) {
 
 function displayAllEquipment() {
     displayEquipmentResults(equipmentDatabase, "all");
-    speak(`Total ${equipmentDatabase.length} equipment items in database`);
 }
 
 function displayEquipmentResults(results, searchTerm) {
@@ -174,147 +361,61 @@ function displayEquipmentResults(results, searchTerm) {
     if (!container) return;
     
     if (results.length === 0) {
-        container.innerHTML = `
-            <div class="equip-idle" style="text-align: center; padding: 40px;">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                </svg>
-                <h3 style="color: #dc2626; margin-top: 15px;">No Results Found</h3>
-                <p style="color: #8a9bae;">No equipment matching "${searchTerm}"</p>
-                <p style="color: #5a6e7a; font-size: 12px; margin-top: 10px;">Try: boat, medical, rope, radio, stretcher, drone, generator</p>
-            </div>
-        `;
+        container.innerHTML = `<div style="text-align:center; padding:40px;"><h3 style="color:#dc2626;">No Results Found</h3><p>No equipment matching "${searchTerm}"</p></div>`;
         return;
     }
     
-    // Group by category
-    const grouped = {};
+    let html = `<div style="padding:20px;"><h3 style="color:#2ecc71;">🔍 Found ${results.length} item(s)</h3><table style="width:100%; border-collapse:collapse;">`;
+    html += `<tr style="background:#0a0c12;"><th style="padding:10px; text-align:left;">Item</th><th>Qty</th><th>Category</th><th>Status</th></tr>`;
+    
     results.forEach(item => {
-        if (!grouped[item.category]) grouped[item.category] = [];
-        grouped[item.category].push(item);
+        html += `<tr style="border-bottom:1px solid #1a3c2c;">
+            <td style="padding:10px;">${item.name}</td>
+            <td style="padding:10px; text-align:center; color:#2ecc71;">${item.quantity}</td>
+            <td style="padding:10px;">${item.category}</td>
+            <td style="padding:10px;"><span style="color:#2ecc71;">${item.status}</span></td>
+        </tr>`;
     });
-    
-    let html = `
-        <div style="padding: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <span style="color: #2ecc71; font-size: 14px;">🔍 Search Results</span>
-                    <span style="color: #8a9bae; margin-left: 10px;">Found ${results.length} item(s)</span>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <span style="background: #1a3c2c; padding: 4px 12px; border-radius: 20px; font-size: 11px; color: #2ecc71;">✓ Available: ${results.filter(i => i.status === "Available").length}</span>
-                    <span style="background: #3c2a1a; padding: 4px 12px; border-radius: 20px; font-size: 11px; color: #f39c12;">⚠ Limited: ${results.filter(i => i.status === "Limited").length}</span>
-                </div>
-            </div>
-    `;
-    
-    for (const [category, items] of Object.entries(grouped)) {
-        const categoryColors = {
-            "Water Rescue": "#00aaff",
-            "Medical": "#dc2626",
-            "Rope Rescue": "#f39c12",
-            "Communication": "#3b82f6",
-            "Heavy Equipment": "#8b5cf6",
-            "Relief": "#10b981",
-            "Protective Gear": "#ec4899",
-            "Search & Rescue": "#06b6d4",
-            "Fire Rescue": "#ef4444",
-            "Tools": "#6b7280"
-        };
-        const catColor = categoryColors[category] || "#2ecc71";
-        
-        html += `
-            <div style="margin-bottom: 25px; background: rgba(15, 17, 26, 0.5); border-radius: 12px; overflow: hidden;">
-                <div style="background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1)); padding: 12px 16px; border-bottom: 1px solid rgba(46, 204, 113, 0.2);">
-                    <span style="color: ${catColor}; font-size: 14px; font-weight: bold;">📁 ${category}</span>
-                    <span style="color: #5a6e7a; margin-left: 10px; font-size: 11px;">${items.length} items</span>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                        <thead>
-                            <tr style="background: #0a0c12; border-bottom: 1px solid #2ecc71;">
-                                <th style="padding: 12px 10px; text-align: left; color: #8a9bae;">Item Name</th>
-                                <th style="padding: 12px 10px; text-align: center; color: #8a9bae;">Qty</th>
-                                <th style="padding: 12px 10px; text-align: left; color: #8a9bae;">Subcategory</th>
-                                <th style="padding: 12px 10px; text-align: left; color: #8a9bae;">Description</th>
-                                <th style="padding: 12px 10px; text-align: center; color: #8a9bae;">Status</th>
-                                <th style="padding: 12px 10px; text-align: left; color: #8a9bae;">Location</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-        `;
-        
-        items.forEach(item => {
-            const statusColor = item.status === "Available" ? "#2ecc71" : "#f39c12";
-            const statusText = item.status === "Available" ? "✓ Available" : "⚠ Limited";
-            
-            html += `
-                <tr style="border-bottom: 1px solid #1a2c22; transition: background 0.2s;" onmouseover="this.style.background='rgba(46,204,113,0.05)'" onmouseout="this.style.background='transparent'">
-                    <td style="padding: 12px 10px; color: #c8d1e6; font-weight: 500;">${item.name}</td>
-                    <td style="padding: 12px 10px; text-align: center; color: #2ecc71; font-weight: bold;">${item.quantity}</td>
-                    <td style="padding: 12px 10px; color: #8a9bae;">${item.subcategory}</td>
-                    <td style="padding: 12px 10px; color: #5a6e7a; font-size: 11px;">${item.description}</td>
-                    <td style="padding: 12px 10px; text-align: center;">
-                        <span style="background: ${statusColor}20; color: ${statusColor}; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: bold;">${statusText}</span>
-                    </td>
-                    <td style="padding: 12px 10px; color: #6b7280; font-size: 11px;">📍 ${item.location}</td>
-                </tr>
-            `;
-        });
-        
-        html += `
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-    }
-    
-    html += `</div>`;
+    html += `早年</div>`;
     container.innerHTML = html;
     
-    // Update dashboard stats
-    const totalItems = equipmentDatabase.reduce((sum, item) => sum + item.quantity, 0);
+    const dashEquipCount = document.getElementById('dashEquipCount');
+    if (dashEquipCount) dashEquipCount.innerHTML = `<span style="font-size:24px;">${equipmentDatabase.length}</span>`;
+    
     const categories = [...new Set(equipmentDatabase.map(i => i.category))];
-    document.getElementById('dashEquipCount').innerHTML = `<span style="font-size: 24px;">${equipmentDatabase.length}</span>`;
-    document.getElementById('dashCatCount').innerHTML = `<span style="font-size: 24px;">${categories.length}</span>`;
+    const dashCatCount = document.getElementById('dashCatCount');
+    if (dashCatCount) dashCatCount.innerHTML = `<span style="font-size:24px;">${categories.length}</span>`;
 }
 
 function loadEquipment() {
     displayAllEquipment();
 }
 
-// ==================== DOCUMENTATION FUNCTION ====================
+// ==================== DOCUMENTATION FUNCTION (FULLY RESTORED) ====================
 window.showDocumentation = function() {
     console.log("Documentation button clicked!");
     
-     
-   const docHtml = `
+    const docHtml = `
     <div style="background: linear-gradient(135deg, #0f111a 0%, #0a0c12 100%); border-radius: 16px; padding: 25px; border: 1px solid rgba(46, 204, 113, 0.3);">
         
         <!-- Header with System Overview -->
         <div style="border-bottom: 1px solid rgba(46, 204, 113, 0.2); padding-bottom: 20px; margin-bottom: 20px;">
             <h3 style="color: #2ecc71; font-family: 'Orbitron', monospace; font-size: 18px; letter-spacing: 2px; text-align: center; margin-bottom: 10px;">
-                 NDRF / SDRF COMMAND CENTER v3.0
+                🚨 NDRF / SDRF COMMAND CENTER v3.0
             </h3>
             <p style="color: #8a9bae; text-align: center; font-size: 13px; margin-bottom: 15px;">
                 Real-Time Disaster Response Management System
             </p>
             
             <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-top: 10px;">
-                <h4 style="color: #2ecc71; font-size: 13px; margin-bottom: 10px;"> SYSTEM CAPABILITIES</h4>
+                <h4 style="color: #2ecc71; font-size: 13px; margin-bottom: 10px;">⚡ SYSTEM CAPABILITIES</h4>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 12px;">
-                    <div style="color: #c8d1e6;"> <span style="color: #2ecc71;">Live Camera Feed</span> - Real-time object detection with YOLO/COCO-SSD</div>
-                    <div style="color: #c8d1e6;"> <span style="color: #2ecc71;">AI Image Analysis</span> - Gemini-powered disaster assessment</div>
-                    <div style="color: #c8d1e6;"> <span style="color: #2ecc71;">Route Planning</span> - Shortest path generation for rescue operations</div>
-                    <div style="color: #c8d1e6;"> <span style="color: #2ecc71;">Equipment Database</span> - Searchable inventory of rescue gear</div>
-                    <div style="color: #c8d1e6;"> <span style="color: #2ecc71;">Voice Commands</span> - Hands-free operation using speech recognition</div>
-                    <div style="color: #c8d1e6;"> <span style="color: #2ecc71;">Weather Updates</span> - Real-time weather for any location</div>
-                    <div style="color: #c8d1e6;"> <span style="color: #2ecc71;">Website Integration</span> - Quick access to essential web services</div>
-                    <div style="color: #c8d1e6;"> <span style="color: #2ecc71;">System Logs</span> - Real-time activity monitoring</div>
+                    <div style="color: #c8d1e6;">🎥 <span style="color: #2ecc71;">Live Camera Feed</span> - Real-time object detection with COCO-SSD</div>
+                    <div style="color: #c8d1e6;">🤖 <span style="color: #2ecc71;">AI Image Analysis</span> - Gemini-powered disaster assessment</div>
+                    <div style="color: #c8d1e6;">🗺️ <span style="color: #2ecc71;">Route Planning</span> - Shortest path generation for rescue operations</div>
+                    <div style="color: #c8d1e6;">📦 <span style="color: #2ecc71;">Equipment Database</span> - Searchable inventory of rescue gear</div>
+                    <div style="color: #c8d1e6;">🎤 <span style="color: #2ecc71;">Voice Commands</span> - Hands-free operation using speech recognition</div>
+                    <div style="color: #c8d1e6;">🌤️ <span style="color: #2ecc71;">Weather Updates</span> - Real-time weather for any location</div>
                 </div>
             </div>
         </div>
@@ -351,7 +452,7 @@ window.showDocumentation = function() {
                 </div>
                 <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px;">
                     <code style="color: #2ecc71;">"analyze image"</code>
-                    <span style="color: #5a6e7a; font-size: 11px; display: block;">Open AI disaster image analysis</span>
+                    <span style="color: #5a6e7a; font-size: 11px; display: block;">AI disaster image analysis</span>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px;">
                     <code style="color: #2ecc71;">"stop listening"</code>
@@ -376,19 +477,19 @@ window.showDocumentation = function() {
             <div style="display: flex; flex-wrap: wrap; gap: 10px;">
                 <div style="background: rgba(0,0,0,0.3); border-radius: 20px; padding: 6px 15px;">
                     <span style="color: #2ecc71;">"search equipment boat"</span>
-                    <span style="color: #5a6e7a; font-size: 11px;"> → Rescue boats (6 available)</span>
+                    <span style="color: #5a6e7a; font-size: 11px;"> → Rescue boats available</span>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); border-radius: 20px; padding: 6px 15px;">
                     <span style="color: #2ecc71;">"search equipment medical"</span>
-                    <span style="color: #5a6e7a; font-size: 11px;"> → Medical supplies (70+ items)</span>
+                    <span style="color: #5a6e7a; font-size: 11px;"> → Medical supplies</span>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); border-radius: 20px; padding: 6px 15px;">
                     <span style="color: #2ecc71;">"search equipment rope"</span>
-                    <span style="color: #5a6e7a; font-size: 11px;"> → Rope rescue gear (35+ items)</span>
+                    <span style="color: #5a6e7a; font-size: 11px;"> → Rope rescue gear</span>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); border-radius: 20px; padding: 6px 15px;">
                     <span style="color: #2ecc71;">"search equipment radio"</span>
-                    <span style="color: #5a6e7a; font-size: 11px;"> → Communication devices (50+ units)</span>
+                    <span style="color: #5a6e7a; font-size: 11px;"> → Communication devices</span>
                 </div>
             </div>
         </div>
@@ -420,7 +521,7 @@ window.showDocumentation = function() {
         <!-- General Questions -->
         <div style="margin-bottom: 20px;">
             <h4 style="color: #3b82f6; font-size: 14px; margin-bottom: 12px; border-left: 3px solid #3b82f6; padding-left: 10px;">
-                 GENERAL KNOWLEDGE QUERIES
+                📚 GENERAL KNOWLEDGE QUERIES
             </h4>
             <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                 <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px 12px;"><span style="color: #2ecc71;">"who are you"</span> <span style="color: #5a6e7a;">- Assistant introduction</span></div>
@@ -432,35 +533,21 @@ window.showDocumentation = function() {
             </div>
         </div>
         
-        <!-- Website Commands -->
-        <div style="margin-bottom: 20px;">
-            <h4 style="color: #3b82f6; font-size: 14px; margin-bottom: 12px; border-left: 3px solid #3b82f6; padding-left: 10px;">
-                🌐 QUICK WEBSITE ACCESS
-            </h4>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px 12px;"><span style="color: #2ecc71;">"open google"</span> <span style="color: #5a6e7a;">- Google Search</span></div>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px 12px;"><span style="color: #2ecc71;">"open youtube"</span> <span style="color: #5a6e7a;">- YouTube</span></div>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px 12px;"><span style="color: #2ecc71;">"open gmail"</span> <span style="color: #5a6e7a;">- Gmail</span></div>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px 12px;"><span style="color: #2ecc71;">"open maps"</span> <span style="color: #5a6e7a;">- Google Maps</span></div>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px 12px;"><span style="color: #2ecc71;">"open github"</span> <span style="color: #5a6e7a;">- GitHub</span></div>
-            </div>
-        </div>
-        
         <!-- Footer Tips -->
         <div style="background: linear-gradient(135deg, #0f111a 0%, #0a0c12 100%); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid rgba(46, 204, 113, 0.2);">
             <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
                 <div>
-                    <span style="color: #2ecc71;"> PRO TIP</span>
+                    <span style="color: #2ecc71;">💡 PRO TIP</span>
                     <span style="color: #8a9bae; font-size: 12px; display: block;">Click "Start Listening" for hands-free voice control</span>
                 </div>
                 <div style="width: 1px; height: 30px; background: rgba(46,204,113,0.2);"></div>
                 <div>
-                    <span style="color: #2ecc71;"> SHORTCUT</span>
+                    <span style="color: #2ecc71;">⌨️ SHORTCUT</span>
                     <span style="color: #8a9bae; font-size: 12px; display: block;">Type commands directly in text box</span>
                 </div>
                 <div style="width: 1px; height: 30px; background: rgba(46,204,113,0.2);"></div>
                 <div>
-                    <span style="color: #2ecc71;"> UPDATE</span>
+                    <span style="color: #2ecc71;">🔄 UPDATE</span>
                     <span style="color: #8a9bae; font-size: 12px; display: block;">Equipment database auto-refreshes</span>
                 </div>
             </div>
@@ -468,22 +555,15 @@ window.showDocumentation = function() {
                 © 2024 NDRF Command Center | Real-Time Disaster Response System | Version 3.0
             </div>
         </div>
-    </div>
-`;
+    </div>`;
+    
     const responseDiv = document.getElementById('commandResponse');
     if (responseDiv) {
         responseDiv.innerHTML = docHtml;
         console.log("Documentation displayed successfully!");
-    } else {
-        console.log("commandResponse element not found!");
-        alert("Documentation: Say 'hello', 'show route', 'search equipment boat', 'start camera', 'stop camera'");
     }
     
-    // Also speak
-    const utterance = new SpeechSynthesisUtterance("Here is the documentation of all available commands.");
-    utterance.rate = 1;
-    utterance.lang = "en-IN";
-    window.speechSynthesis.speak(utterance);
+    speak("Here is the documentation of all available commands.");
 };
 
 // ==================== STATIC RESPONSES ====================
@@ -542,14 +622,65 @@ function getStaticResponse(command) {
     return null;
 }
 
-// ==================== IMAGE ANALYSIS FUNCTIONS ====================
+// ==================== ROUTE FUNCTIONS ====================
+async function generateRoute() {
+    addLog('🗺️ Generating route map...', 'info');
+    speak('Generating shortest path route...');
+
+    const routeStatus = document.getElementById('routeStatus');
+    const routeMapContainer = document.getElementById('routeMapContainer');
+    
+    if (routeStatus) routeStatus.innerHTML = '🔄 Generating route...';
+    if (routeMapContainer) {
+        routeMapContainer.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#2ecc71;">Generating route...</div>`;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/generate_route`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        });
+
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+        const data = await response.json();
+
+        if (data.success && data.map_url) {
+            const finalUrl = data.map_url.startsWith("http") ? data.map_url : `${API_BASE}${data.map_url}`;
+            const iframe = document.createElement('iframe');
+            iframe.src = finalUrl;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.borderRadius = '12px';
+            
+            if (routeMapContainer) {
+                routeMapContainer.innerHTML = '';
+                routeMapContainer.appendChild(iframe);
+            }
+            if (routeStatus) {
+                routeStatus.innerHTML = `✅ Route generated | Distance: ${data.distance_km} km | Time: ${data.duration_min} min`;
+            }
+            addLog(`✅ Route generated: ${data.distance_km} km`, 'success');
+            speak(`Route generated! Distance: ${data.distance_km} km, Time: ${data.duration_min} minutes.`);
+        } else {
+            throw new Error("Invalid response");
+        }
+    } catch (err) {
+        console.error('Route error:', err);
+        if (routeStatus) routeStatus.innerHTML = `⚠️ Route error: ${err.message}`;
+        speak('Route generation failed. Please check backend connection.');
+    }
+}
+
+// ==================== IMAGE ANALYSIS ====================
 async function analyzeUploadedImage(file) {
     addLog(`📸 Analyzing uploaded image: ${file.name}`, 'info');
     speak(`Analyzing uploaded image...`);
     
     const resultContainer = document.getElementById('aiResultContainer');
     if (resultContainer) {
-        resultContainer.innerHTML = '<div class="ai-loading" style="display:flex; flex-direction:column; align-items:center; gap:15px;"><div class="spinner"></div><span>Analyzing image with AI...</span></div>';
+        resultContainer.innerHTML = '<div class="ai-loading"><div class="spinner"></div><span>Analyzing image with AI...</span></div>';
     }
     
     const formData = new FormData();
@@ -561,65 +692,40 @@ async function analyzeUploadedImage(file) {
             body: formData
         });
         
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-        }
-        
         const data = await response.json();
         
         if (data.success && resultContainer) {
-            resultContainer.innerHTML = `<div class="ai-result-data" style="display:block">
-                <div class="ai-result-section">
-                    <h4> Analysis Result</h4>
-                    <pre style="white-space:pre-wrap; font-family:monospace; font-size:12px; line-height:1.5; max-height:400px; overflow-y:auto;">${data.analysis || 'No analysis returned'}</pre>
-                </div>
-            </div>`;
-            addLog(' Image analysis complete', 'success');
-            speak('Analysis complete. Check the result in the AI Analysis panel.');
+            resultContainer.innerHTML = `<div class="ai-result-data"><pre style="white-space:pre-wrap;">${data.analysis || 'No analysis returned'}</pre></div>`;
+            addLog('✅ Image analysis complete', 'success');
+            speak('Analysis complete.');
         } else {
             throw new Error(data.error || 'Analysis failed');
         }
     } catch (err) {
         console.error('Analysis error:', err);
         if (resultContainer) {
-            resultContainer.innerHTML = `<div class="ai-result-idle">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/>
-                    <path d="M12 6v6l4 2"/>
-                </svg>
-                <h3>Analysis Failed</h3>
-                <p>${err.message}</p>
-                <p style="font-size:11px;">Make sure Flask server is running on port 5000</p>
-            </div>`;
+            resultContainer.innerHTML = `<div class="ai-result-idle"><h3>Analysis Failed</h3><p>${err.message}</p></div>`;
         }
-        addLog(`Analysis error: ${err.message}`, 'error');
-        speak('Analysis failed. Please check if the server is running.');
+        speak('Analysis failed.');
     }
 }
 
 async function analyzeLiveFrame() {
     if (!cameraActive || !video?.videoWidth) {
-        addLog(' Please start camera first', 'warning');
-        speak('Please start the camera first before analyzing a frame.');
+        addLog('⚠️ Please start camera first', 'warning');
+        speak('Please start the camera first.');
         return;
     }
     
-    addLog(' Capturing and analyzing current frame...', 'info');
+    addLog('📸 Analyzing current frame...', 'info');
     speak('Analyzing current camera frame...');
     
-    const resultContainer = document.getElementById('aiResultContainer');
-    if (resultContainer) {
-        resultContainer.innerHTML = '<div class="ai-loading" style="display:flex; flex-direction:column; align-items:center; gap:15px;"><div class="spinner"></div><span>Analyzing image with AI...</span></div>';
-    }
-    
-    // Capture current video frame
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = video.videoWidth;
     tempCanvas.height = video.videoHeight;
     const tempCtx = tempCanvas.getContext('2d');
     tempCtx.drawImage(video, 0, 0);
     
-    // Convert to blob for sending
     tempCanvas.toBlob(async (blob) => {
         const formData = new FormData();
         formData.append('image', blob, 'frame.jpg');
@@ -629,41 +735,84 @@ async function analyzeLiveFrame() {
                 method: 'POST',
                 body: formData
             });
-            
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status}`);
-            }
-            
             const data = await response.json();
             
+            const resultContainer = document.getElementById('aiResultContainer');
             if (data.success && resultContainer) {
-                resultContainer.innerHTML = `<div class="ai-result-data" style="display:block">
-                    <div class="ai-result-section">
-                        <h4> Analysis Result</h4>
-                        <pre style="white-space:pre-wrap; font-family:monospace; font-size:12px; line-height:1.5; max-height:400px; overflow-y:auto;">${data.analysis || 'No analysis returned'}</pre>
-                    </div>
-                </div>`;
-                addLog(' Frame analysis complete', 'success');
-                speak('Analysis complete. Check the result.');
-            } else {
-                throw new Error(data.error || 'Analysis failed');
+                resultContainer.innerHTML = `<div class="ai-result-data"><pre style="white-space:pre-wrap;">${data.analysis || 'No analysis returned'}</pre></div>`;
+                addLog('✅ Frame analysis complete', 'success');
+                speak('Analysis complete.');
             }
         } catch (err) {
             console.error('Analysis error:', err);
-            if (resultContainer) {
-                resultContainer.innerHTML = `<div class="ai-result-idle">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/>
-                        <path d="M12 6v6l4 2"/>
-                    </svg>
-                    <h3>Analysis Failed</h3>
-                    <p>${err.message}</p>
-                </div>`;
-            }
-            addLog(` Analysis error: ${err.message}`, 'error');
             speak('Analysis failed.');
         }
     }, 'image/jpeg', 0.8);
+}
+
+// ==================== VOICE RECOGNITION ====================
+function initVoice() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        addLog('❌ Voice not supported in this browser', 'error');
+        return;
+    }
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = "en-IN";
+    
+    recognition.onstart = () => {
+        listening = true;
+        const voiceVisualizer = document.getElementById('voiceVisualizer');
+        if (voiceVisualizer) voiceVisualizer.classList.add('listening');
+        addLog('🎤 Voice activated', 'success');
+    };
+    
+    recognition.onresult = (event) => {
+        const transcript = event.results[event.resultIndex][0].transcript.toLowerCase();
+        const transcriptText = document.getElementById('transcriptText');
+        if (transcriptText) transcriptText.innerHTML = transcript;
+        addLog(`🎤 Recognized: "${transcript}"`, 'info');
+        takeCommand(transcript);
+    };
+    
+    recognition.onerror = (event) => {
+        addLog(`Voice error: ${event.error}`, 'error');
+        const voiceVisualizer = document.getElementById('voiceVisualizer');
+        if (voiceVisualizer) voiceVisualizer.classList.remove('listening');
+    };
+    
+    recognition.onend = () => {
+        const voiceVisualizer = document.getElementById('voiceVisualizer');
+        if (voiceVisualizer) voiceVisualizer.classList.remove('listening');
+        if (listening) setTimeout(() => recognition.start(), 1000);
+    };
+}
+
+function startListening() {
+    if (!recognition) initVoice();
+    if (recognition) {
+        listening = true;
+        recognition.start();
+        const btnStartVoice = document.getElementById('btnStartVoice');
+        const btnStopVoice = document.getElementById('btnStopVoice');
+        if (btnStartVoice) btnStartVoice.disabled = true;
+        if (btnStopVoice) btnStopVoice.disabled = false;
+        addLog('🎤 Voice activated', 'success');
+        speak("Voice activated. Say a command like 'hello' or 'show route'.");
+    }
+}
+
+function stopListening() {
+    listening = false;
+    if (recognition) recognition.stop();
+    const btnStartVoice = document.getElementById('btnStartVoice');
+    const btnStopVoice = document.getElementById('btnStopVoice');
+    if (btnStartVoice) btnStartVoice.disabled = false;
+    if (btnStopVoice) btnStopVoice.disabled = true;
+    addLog('🔇 Voice stopped', 'info');
+    speak("Voice stopped.");
 }
 
 // ==================== COMMAND HANDLER ====================
@@ -688,7 +837,8 @@ async function takeCommand(command) {
     if (command.includes("start camera")) {
         startCamera();
         speak("Starting camera...");
-        document.querySelector('[data-panel="camera"]')?.click();
+        const cameraPanel = document.querySelector('[data-panel="camera"]');
+        if (cameraPanel) cameraPanel.click();
         return;
     }
     
@@ -696,7 +846,8 @@ async function takeCommand(command) {
     if (command.includes("show route") || command.includes("shortest path")) {
         generateRoute();
         speak("Generating shortest path route...");
-        document.querySelector('[data-panel="route"]')?.click();
+        const routePanel = document.querySelector('[data-panel="route"]');
+        if (routePanel) routePanel.click();
         return;
     }
     
@@ -704,7 +855,8 @@ async function takeCommand(command) {
     if (command.includes("help") || command.includes("documentation")) {
         showDocumentation();
         speak("Here is the documentation.");
-        document.querySelector('[data-panel="commands"]')?.click();
+        const commandsPanel = document.querySelector('[data-panel="commands"]');
+        if (commandsPanel) commandsPanel.click();
         return;
     }
     
@@ -713,8 +865,7 @@ async function takeCommand(command) {
         if (cameraActive) {
             analyzeLiveFrame();
         } else {
-            speak("Please upload an image using the Upload Image button, or start the camera first.");
-            document.querySelector('[data-panel="ai-analysis"]')?.click();
+            speak("Please start the camera first.");
         }
         return;
     }
@@ -727,7 +878,8 @@ async function takeCommand(command) {
         } else {
             loadEquipment();
         }
-        document.querySelector('[data-panel="equipment"]')?.click();
+        const equipmentPanel = document.querySelector('[data-panel="equipment"]');
+        if (equipmentPanel) equipmentPanel.click();
         return;
     }
     
@@ -776,379 +928,26 @@ async function takeCommand(command) {
     if (command.includes("human only")) {
         humanOnly = !humanOnly;
         speak(`Human only mode ${humanOnly ? 'activated' : 'deactivated'}`);
-        document.getElementById('btnHumanOnly').style.background = humanOnly ? '#2ecc71' : '';
+        const btnHumanOnly = document.getElementById('btnHumanOnly');
+        if (btnHumanOnly) btnHumanOnly.style.background = humanOnly ? '#2ecc71' : '';
         return;
     }
     
     // Default
-    speak("Say 'help' or check the Documentation  to see all available commands.");
-}
-// ==================== ROUTE FUNCTIONS ====================
-async function generateRoute() {
-    addLog('🗺️ Generating route map...', 'info');
-    speak('Generating shortest path route...');
-
-    const routeStatus = document.getElementById('routeStatus');
-    if (routeStatus) routeStatus.innerHTML = '🔄 Generating route...';
-
-    const routeMapContainer = document.getElementById('routeMapContainer');
-    if (routeMapContainer) {
-        routeMapContainer.innerHTML = `
-            <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#2ecc71;">
-                <div class="spinner"></div>
-                <span style="margin-left:10px;">Generating route map...</span>
-            </div>
-        `;
-    }
-
-    try {
-        const response = await fetch(`${API_BASE}/generate_route`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({})
-        });
-
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // ✅ MAIN FIX: Always use backend URL
-        if (data.success && data.map_url) {
-
-            const finalUrl = data.map_url.startsWith("http")
-                ? data.map_url
-                : `${API_BASE}${data.map_url}`;
-
-            console.log("Opening map:", finalUrl);
-
-            const iframe = document.createElement('iframe');
-            iframe.src = finalUrl;
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.border = 'none';
-            iframe.style.borderRadius = '12px';
-
-            if (routeMapContainer) {
-                routeMapContainer.innerHTML = '';
-                routeMapContainer.appendChild(iframe);
-            }
-
-            if (routeStatus) {
-                routeStatus.innerHTML = `✅ Route generated | Distance: ${data.distance_km} km | Time: ${data.duration_min} min`;
-            }
-
-            addLog(`✅ Route generated: ${data.distance_km} km`, 'success');
-            speak(`Route generated! Distance: ${data.distance_km} km, Time: ${data.duration_min} minutes.`);
-
-            // Dashboard preview update
-            const dashRoutePreview = document.getElementById('dashRoutePreview');
-            if (dashRoutePreview) {
-                dashRoutePreview.innerHTML = `
-                    <div style="text-align: center;">
-                        <div style="color: #2ecc71; font-size: 20px;">${data.distance_km}</div>
-                        <div style="color: #5a6e7a; font-size: 10px;">KM</div>
-                        <div style="color: #2ecc71; font-size: 20px; margin-top: 5px;">${data.duration_min}</div>
-                        <div style="color: #5a6e7a; font-size: 10px;">MIN</div>
-                        <div style="font-size: 9px; color: #86efac; margin-top: 5px;">✓ Shortest path</div>
-                    </div>
-                `;
-            }
-
-        } else {
-            throw new Error("Invalid response from server");
-        }
-
-    } catch (err) {
-        console.error('Route error:', err);
-        addLog(`❌ Route error: ${err.message}`, 'error');
-
-        // fallback static canvas
-        drawStaticRouteMap();
-
-        if (routeStatus) {
-            routeStatus.innerHTML = `✅ Route generated (Static) | Distance: 2.8 km | Time: 7 min`;
-        }
-
-        speak('Route generated using fallback static map.');
-    }
-}
-
-// Static canvas map as fallback (when backend is not available)
-function drawStaticRouteMap() {
-    const canvasEl = document.getElementById('routeCanvas');
-    if (!canvasEl) return;
-    
-    const ctxR = canvasEl.getContext('2d');
-    canvasEl.width = canvasEl.clientWidth || 800;
-    canvasEl.height = 400;
-    
-    ctxR.clearRect(0, 0, canvasEl.width, canvasEl.height);
-    
-    // Draw grid
-    ctxR.strokeStyle = '#1a3c2c';
-    for(let i = 0; i < canvasEl.width; i += 50) {
-        ctxR.beginPath();
-        ctxR.moveTo(i, 0);
-        ctxR.lineTo(i, canvasEl.height);
-        ctxR.stroke();
-        ctxR.beginPath();
-        ctxR.moveTo(0, i);
-        ctxR.lineTo(canvasEl.width, i);
-        ctxR.stroke();
-    }
-    
-    // Start point
-    ctxR.fillStyle = '#2ecc71';
-    ctxR.beginPath();
-    ctxR.arc(60, canvasEl.height - 60, 10, 0, Math.PI * 2);
-    ctxR.fill();
-    ctxR.fillStyle = '#fff';
-    ctxR.font = '12px monospace';
-    ctxR.fillText('START', 45, canvasEl.height - 70);
-    
-    // End point
-    ctxR.fillStyle = '#dc2626';
-    ctxR.beginPath();
-    ctxR.arc(canvasEl.width - 80, 60, 10, 0, Math.PI * 2);
-    ctxR.fill();
-    ctxR.fillText('RESCUE', canvasEl.width - 95, 50);
-    
-    // Obstacles
-    ctxR.fillStyle = 'rgba(220, 38, 38, 0.15)';
-    ctxR.fillRect(150, 150, 80, 60);
-    ctxR.fillRect(320, 250, 100, 70);
-    ctxR.fillRect(480, 120, 70, 80);
-    
-    // Path
-    ctxR.beginPath();
-    ctxR.moveTo(60, canvasEl.height - 60);
-    ctxR.lineTo(150, canvasEl.height - 150);
-    ctxR.lineTo(280, canvasEl.height - 220);
-    ctxR.lineTo(420, 200);
-    ctxR.lineTo(canvasEl.width - 150, 100);
-    ctxR.lineTo(canvasEl.width - 80, 60);
-    ctxR.strokeStyle = '#2ecc71';
-    ctxR.lineWidth = 3;
-    ctxR.stroke();
-    
-    // Waypoints
-    const points = [
-        { x: 60, y: canvasEl.height - 60 },
-        { x: 150, y: canvasEl.height - 150 },
-        { x: 280, y: canvasEl.height - 220 },
-        { x: 420, y: 200 },
-        { x: canvasEl.width - 150, y: 100 },
-        { x: canvasEl.width - 80, y: 60 }
-    ];
-    points.forEach(point => {
-        ctxR.fillStyle = '#2ecc71';
-        ctxR.beginPath();
-        ctxR.arc(point.x, point.y, 5, 0, Math.PI * 2);
-        ctxR.fill();
-    });
-    
-    const routeStatus = document.getElementById('routeStatus');
-    if (routeStatus && !routeStatus.innerHTML.includes('static')) {
-        routeStatus.innerHTML = '✅ Route generated (Static) | Distance: 2.8 km | Time: 7 min';
-    }
-}
-// ==================== EQUIPMENT FUNCTIONS ====================
-function searchEquipment(query) {
-    const results = equipmentDatabase.filter(item => 
-        item.name.toLowerCase().includes(query.toLowerCase()) ||
-        item.category.toLowerCase().includes(query.toLowerCase())
-    );
-    
-    const container = document.getElementById('equipResults');
-    if (results.length === 0) {
-        container.innerHTML = `<div class="equip-idle"><p> No equipment found for "${query}"</p></div>`;
-        speak(`No equipment found for ${query}`);
-    } else {
-        let html = `<h3 style="color:#2ecc71;">🔍 Found ${results.length} item(s)</h3><table style="width:100%">\
-<th>Item</th><th>Qty</th><th>Category</th></tr>`;
-        results.forEach(item => {
-            html += `<tr><td>${item.name}</td><td style="color:#2ecc71">${item.quantity}</td><td>${item.category}</td></tr>`;
-        });
-        html += `</table>`;
-        container.innerHTML = html;
-        speak(`Found ${results.length} items for ${query}`);
-    }
-}
-
-function loadEquipment() {
-    const container = document.getElementById('equipResults');
-    let html = `<h3 style="color:#2ecc71;"> All Equipment (${equipmentDatabase.length} items)</h3><table style="width:100%">\
-<th>Item</th><th>Qty</th><th>Category</th></tr>`;
-    equipmentDatabase.forEach(item => {
-        html += `<tr><td>${item.name}</td><td style="color:#2ecc71">${item.quantity}</td><td>${item.category}</td></tr>`;
-    });
-    html += `</table>`;
-    container.innerHTML = html;
-    
-    const categories = [...new Set(equipmentDatabase.map(i => i.category))];
-    document.getElementById('dashEquipCount').innerText = equipmentDatabase.length;
-    document.getElementById('dashCatCount').innerText = categories.length;
-}
-
-// ==================== CAMERA FUNCTIONS ====================
-async function loadModel() {
-    try {
-        model = await cocoSsd.load();
-        addLog(' Model loaded');
-        return true;
-    } catch(err) {
-        addLog('❌ Model error: ' + err.message);
-        return false;
-    }
-}
-
-async function startCamera() {
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        dashVideo.srcObject = stream;
-        await video.play();
-        cameraActive = true;
-        addLog(' Camera started');
-        document.getElementById('cameraPlaceholder').style.display = 'none';
-        
-        video.addEventListener('loadedmetadata', () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            dashCanvas.width = video.videoWidth;
-            dashCanvas.height = video.videoHeight;
-        });
-        
-        startDetection();
-    } catch(err) {
-        addLog(' Camera error: ' + err.message);
-        speak('Camera error. Please check permissions.');
-    }
-}
-
-function stopCamera() {
-    if (stream) {
-        stream.getTracks().forEach(t => t.stop());
-        stream = null;
-    }
-    cameraActive = false;
-    addLog('Camera stopped');
-    document.getElementById('cameraPlaceholder').style.display = 'flex';
-    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-async function startDetection() {
-    async function detect() {
-        if (!cameraActive || !model || !video?.videoWidth) {
-            requestAnimationFrame(detect);
-            return;
-        }
-        try {
-            const predictions = await model.detect(video);
-            drawBoxes(predictions);
-            
-            const detList = document.getElementById('detectionList');
-            if (detList) {
-                if (predictions.length > 0) {
-                    detList.innerHTML = '<h3>Detections</h3>' + predictions.slice(0, 10).map(p => 
-                        `<div class="detection-item"><span>${p.class}</span><span>${Math.round(p.score * 100)}%</span></div>`
-                    ).join('');
-                } else {
-                    detList.innerHTML = '<h3>Detections</h3><div>No detections</div>';
-                }
-            }
-        } catch(e) {}
-        requestAnimationFrame(detect);
-    }
-    detect();
-}
-
-function drawBoxes(predictions) {
-    if (!ctx || !dashCtx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    dashCtx.clearRect(0, 0, dashCanvas.width, dashCanvas.height);
-    if (!boxesVisible) return;
-    
-    predictions.forEach(pred => {
-        if (humanOnly && pred.class !== 'person') return;
-        const [x, y, w, h] = pred.bbox;
-        const color = pred.class === 'person' ? '#2ecc71' : '#3b82f6';
-        
-        [ctx, dashCtx].forEach(c => {
-            c.strokeStyle = color;
-            c.strokeRect(x, y, w, h);
-            c.fillStyle = color;
-            c.fillText(`${pred.class}`, x, y-5);
-        });
-    });
-}
-
-// ==================== VOICE RECOGNITION ====================
-function initVoice() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        addLog('Voice not supported');
-        return;
-    }
-    recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.lang = "en-IN";
-    
-    recognition.onstart = () => {
-        listening = true;
-        document.getElementById('voiceVisualizer').classList.add('listening');
-        addLog('🎤 Voice started');
-    };
-    
-    recognition.onresult = (event) => {
-        const transcript = event.results[event.resultIndex][0].transcript.toLowerCase();
-        document.getElementById('transcriptText').innerHTML = transcript;
-        addLog(`🎤 Recognized: "${transcript}"`);
-        takeCommand(transcript);
-    };
-    
-    recognition.onerror = (event) => {
-        addLog(`Voice error: ${event.error}`);
-        document.getElementById('voiceVisualizer').classList.remove('listening');
-    };
-    
-    recognition.onend = () => {
-        document.getElementById('voiceVisualizer').classList.remove('listening');
-        if (listening) {
-            setTimeout(() => recognition.start(), 1000);
-        }
-    };
-}
-
-function startListening() {
-    if (!recognition) initVoice();
-    if (recognition) {
-        listening = true;
-        recognition.start();
-        document.getElementById('btnStartVoice').disabled = true;
-        document.getElementById('btnStopVoice').disabled = false;
-        addLog('🎤 Voice activated');
-        speak("Voice activated. Say a command like 'hello' or 'show route'.");
-    }
-}
-
-function stopListening() {
-    listening = false;
-    if (recognition) recognition.stop();
-    document.getElementById('btnStartVoice').disabled = false;
-    document.getElementById('btnStopVoice').disabled = true;
-    addLog('Voice stopped');
-    speak("Voice stopped.");
+    speak("Say 'help' or check the Documentation to see all available commands.");
 }
 
 // ==================== HELPER FUNCTIONS ====================
-function addLog(message) {
+function addLog(message, type = 'info') {
     const logs = document.getElementById('logsContainer');
+    if (!logs) {
+        console.log(message);
+        return;
+    }
+    
     const time = new Date().toLocaleTimeString();
-    logs.innerHTML += `<div class="log-entry"><span class="log-time">${time}</span>${message}</div>`;
+    const color = type === 'error' ? '#dc2626' : (type === 'success' ? '#2ecc71' : '#8a9bae');
+    logs.innerHTML += `<div class="log-entry"><span class="log-time" style="color: ${color};">${time}</span>${message}</div>`;
     logs.scrollTop = logs.scrollHeight;
     console.log(message);
 }
@@ -1157,29 +956,33 @@ function updateUptime() {
     const uptime = Math.floor((Date.now() - startTime) / 1000);
     const mins = Math.floor(uptime / 60);
     const secs = uptime % 60;
-    document.getElementById('sysUptime').innerText = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+    const sysUptime = document.getElementById('sysUptime');
+    if (sysUptime) sysUptime.innerText = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
 }
-setInterval(updateUptime, 1000);
 
 function updateClock() {
     const now = new Date();
-    document.getElementById('systemClock').innerText = now.toLocaleTimeString();
-    document.getElementById('systemDate').innerText = now.toLocaleDateString();
-    document.getElementById('camTime').innerText = now.toLocaleTimeString();
+    const systemClock = document.getElementById('systemClock');
+    const systemDate = document.getElementById('systemDate');
+    const camTime = document.getElementById('camTime');
+    
+    if (systemClock) systemClock.innerText = now.toLocaleTimeString();
+    if (systemDate) systemDate.innerText = now.toLocaleDateString();
+    if (camTime) camTime.innerText = now.toLocaleTimeString();
 }
-setInterval(updateClock, 1000);
-updateClock();
 
 // ==================== EVENT LISTENERS ====================
 document.getElementById('btnStartCamera')?.addEventListener('click', startCamera);
 document.getElementById('btnStopCamera')?.addEventListener('click', stopCamera);
 document.getElementById('btnToggleBoxes')?.addEventListener('click', () => {
     boxesVisible = !boxesVisible;
-    document.getElementById('btnToggleBoxes').innerText = boxesVisible ? 'Hide Boxes' : 'Show Boxes';
+    const btn = document.getElementById('btnToggleBoxes');
+    if (btn) btn.innerText = boxesVisible ? 'Hide Boxes' : 'Show Boxes';
 });
 document.getElementById('btnHumanOnly')?.addEventListener('click', () => {
     humanOnly = !humanOnly;
-    document.getElementById('btnHumanOnly').style.background = humanOnly ? '#2ecc71' : '';
+    const btn = document.getElementById('btnHumanOnly');
+    if (btn) btn.style.background = humanOnly ? '#2ecc71' : '';
 });
 document.getElementById('btnAnalyzeFrame')?.addEventListener('click', analyzeLiveFrame);
 document.getElementById('btnSearchEquip')?.addEventListener('click', () => {
@@ -1195,10 +998,11 @@ document.getElementById('btnExecuteCmd')?.addEventListener('click', () => {
     if (cmd) takeCommand(cmd.toLowerCase());
 });
 document.getElementById('btnClearLogs')?.addEventListener('click', () => {
-    document.getElementById('logsContainer').innerHTML = '<div class="log-entry">Logs cleared</div>';
+    const logsContainer = document.getElementById('logsContainer');
+    if (logsContainer) logsContainer.innerHTML = '<div class="log-entry">Logs cleared</div>';
 });
 
-// ==================== DOCUMENTATION BUTTON ====================
+// Documentation button
 const docsBtn = document.getElementById('btnShowDocs');
 if (docsBtn) {
     docsBtn.addEventListener('click', function() {
@@ -1212,7 +1016,8 @@ const dashboardDocBtn = document.getElementById('dashboardDocBtn');
 if (dashboardDocBtn) {
     dashboardDocBtn.addEventListener('click', function() {
         showDocumentation();
-        document.querySelector('[data-panel="commands"]')?.click();
+        const commandsPanel = document.querySelector('[data-panel="commands"]');
+        if (commandsPanel) commandsPanel.click();
     });
 }
 
@@ -1230,7 +1035,8 @@ document.querySelectorAll('.menu-item').forEach(item => {
         document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        document.getElementById(`panel-${item.dataset.panel}`)?.classList.add('active');
+        const panel = document.getElementById(`panel-${item.dataset.panel}`);
+        if (panel) panel.classList.add('active');
     });
 });
 
@@ -1243,70 +1049,122 @@ document.querySelectorAll('.dash-card[data-goto]').forEach(card => {
     });
 });
 
-document.getElementById('hamburger')?.addEventListener('click', () => {
-    document.getElementById('sidebar')?.classList.toggle('collapsed');
-});
+// Hamburger menu
+const hamburger = document.getElementById('hamburger');
+const sidebar = document.getElementById('sidebar');
+if (hamburger && sidebar) {
+    hamburger.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+    });
+}
 
 // ==================== IMAGE UPLOAD ====================
-document.getElementById('btnUploadImage')?.addEventListener('click', () => {
-    document.getElementById('imageUploadInput').click();
-});
+const btnUploadImage = document.getElementById('btnUploadImage');
+const imageUploadInput = document.getElementById('imageUploadInput');
+const removeImageBtn = document.getElementById('removeImageBtn');
 
-document.getElementById('imageUploadInput')?.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = document.getElementById('aiPreviewImg');
-            const dropzone = document.querySelector('.ai-image-dropzone');
-            const previewWrapper = document.getElementById('imagePreviewWrapper');
-            
-            if (img) {
-                img.src = event.target.result;
-                img.style.display = 'block';
-            }
-            if (dropzone) dropzone.style.display = 'none';
-            if (previewWrapper) previewWrapper.style.display = 'flex';
-            
-            addLog(`📸 Image selected: ${file.name}`);
-        };
-        reader.readAsDataURL(file);
+if (btnUploadImage) {
+    btnUploadImage.addEventListener('click', () => {
+        if (imageUploadInput) imageUploadInput.click();
+    });
+}
+
+if (imageUploadInput) {
+    imageUploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = document.getElementById('aiPreviewImg');
+                const dropzone = document.querySelector('.ai-image-dropzone');
+                const previewWrapper = document.getElementById('imagePreviewWrapper');
+                
+                if (img) {
+                    img.src = event.target.result;
+                    img.style.display = 'block';
+                }
+                if (dropzone) dropzone.style.display = 'none';
+                if (previewWrapper) previewWrapper.style.display = 'flex';
+                
+                addLog(`📸 Image selected: ${file.name}`);
+            };
+            reader.readAsDataURL(file);
+            analyzeUploadedImage(file);
+        }
+    });
+}
+
+if (removeImageBtn) {
+    removeImageBtn.addEventListener('click', () => {
+        const img = document.getElementById('aiPreviewImg');
+        const dropzone = document.querySelector('.ai-image-dropzone');
+        const previewWrapper = document.getElementById('imagePreviewWrapper');
         
-        // Analyze the image
-        analyzeUploadedImage(file);
-    }
-});
-
-// Remove image button
-document.getElementById('removeImageBtn')?.addEventListener('click', () => {
-    const img = document.getElementById('aiPreviewImg');
-    const dropzone = document.querySelector('.ai-image-dropzone');
-    const previewWrapper = document.getElementById('imagePreviewWrapper');
-    const imageUpload = document.getElementById('imageUploadInput');
-    
-    if (img) {
-        img.src = '';
-        img.style.display = 'none';
-    }
-    if (dropzone) dropzone.style.display = 'flex';
-    if (previewWrapper) previewWrapper.style.display = 'none';
-    if (imageUpload) imageUpload.value = '';
-    
-    addLog('Image removed');
-    speak('Image removed.');
-});
+        if (img) {
+            img.src = '';
+            img.style.display = 'none';
+        }
+        if (dropzone) dropzone.style.display = 'flex';
+        if (previewWrapper) previewWrapper.style.display = 'none';
+        if (imageUploadInput) imageUploadInput.value = '';
+        
+        addLog('Image removed');
+        speak('Image removed.');
+    });
+}
 
 // ==================== INITIALIZATION ====================
 async function init() {
     addLog('='.repeat(40));
-    addLog('NDRF Command Center Initialized');
+    addLog('🚨 NDRF Command Center v3.0');
     addLog('='.repeat(40));
-    await loadModel();
+    
+    const modelLoaded = await loadModel();
+    
+    if (modelLoaded) {
+        addLog('✅ System ready!', 'success');
+        addLog('💡 Say "start camera" to begin detection', 'info');
+        speak("NDRF Command Center ready. Say start camera to begin.");
+    } else {
+        addLog('⚠️ Running without object detection', 'warning');
+        speak("System ready but object detection model failed to load. Camera will work without detection.");
+    }
+    
     loadEquipment();
-    addLog(' System Ready!');
-    addLog(' Say "help" for commands');
-    speak("NDRF Command Center ready. Say hello to begin.");
+    setInterval(updateUptime, 1000);
+    setInterval(updateClock, 1000);
+    updateClock();
 }
+
+// Add CSS for detection items
+const style = document.createElement('style');
+style.textContent = `
+    .detection-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 10px;
+        border-bottom: 1px solid #1a3c2c;
+        font-size: 12px;
+        transition: background 0.2s;
+    }
+    .detection-item:hover {
+        background: rgba(46, 204, 113, 0.1);
+    }
+    #detectionList {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .log-entry {
+        font-family: monospace;
+        font-size: 11px;
+        padding: 4px 0;
+        border-bottom: 1px solid #1a2c22;
+    }
+    .log-time {
+        color: #2ecc71;
+        margin-right: 10px;
+    }
+`;
+document.head.appendChild(style);
 
 init();
