@@ -32,7 +32,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # ==================== FLASK APP INITIALIZATION ====================
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # ==================== VOICE ASSISTANT GLOBALS ====================
 is_activated = False
@@ -41,7 +41,7 @@ voice_loop = None
 voice_enabled = True
 current_command_id = 0
 latest_command_id = 0
-recognizer = None
+
 
 
 
@@ -83,39 +83,6 @@ default_end = (28.6562, 77.2410)    # Red Fort, Delhi
 import base64
 
 # ==================== IMPROVED TEXT TO SPEECH ====================
-async def edge_speak(text, command_id):
-    if not text.strip() or command_id != latest_command_id:
-        return
-
-    audio_base64 = None
-    try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3', dir=AUDIO_DIR) as tmp_file:
-            audio_file = tmp_file.name
-
-        tts = edge_tts.Communicate(text=text, voice="en-IN-NeerjaNeural")
-        await tts.save(audio_file)
-
-        # Convert to base64
-        with open(audio_file, "rb") as f:
-            audio_base64 = base64.b64encode(f.read()).decode('utf-8')
-
-        # Send BOTH text and audio to frontend
-        socketio.emit('assistant_response', {
-            'text': text,
-            'audio': audio_base64,
-            'command_id': command_id
-        })
-
-    except Exception as e:
-        logging.error(f"TTS Error: {e}")
-        socketio.emit('assistant_response', {'text': text, 'audio': None})
-    finally:
-        try:
-            os.unlink(audio_file)
-        except:
-            pass
-
-
 
 
 # ==================== SPEECH RECOGNITION ====================
