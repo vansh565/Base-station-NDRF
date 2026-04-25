@@ -25,7 +25,7 @@ app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 # Apply nest_asyncio for nested event loops
-nest_asyncio.apply()
+
 
 # ==================== FLASK APP INITIALIZATION ====================
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
