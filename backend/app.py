@@ -55,7 +55,7 @@ os.makedirs(FRONTEND_DIR, exist_ok=True)
 os.makedirs(STATIC_DIR, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(UPLOADED_IMAGES_DIR, exist_ok=True)
-os.makedirs(AUDIO_DIR, exist_ok=True)
+
 
 # ==================== API KEYS & CONFIGURATION ====================
 
