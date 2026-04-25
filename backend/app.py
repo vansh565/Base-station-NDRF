@@ -8,24 +8,22 @@ from PIL import Image
 import pandas as pd
 import folium
 import os
-import asyncio
-import subprocess
-
 import requests
 from time import time
-import nest_asyncio
-
 import threading
 from math import radians, sin, cos, sqrt, atan2
-
 from queue import Queue
 import tempfile
-
-# Suppress deprecation warnings
 import warnings
+
+# Suppress warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+# ==================== FLASK APP INITIALIZATION ====================
+app = Flask(__name__, static_folder='../frontend', static_url_path='')
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 # Apply nest_asyncio for nested event loops
 nest_asyncio.apply()
 
@@ -41,7 +39,9 @@ voice_loop = None
 voice_enabled = True
 current_command_id = 0
 latest_command_id = 0
-recognizer = sr.Recognizer()
+recognizer = None
+
+
 
 # Setup logging to file only (not console)
 logging.basicConfig(
@@ -114,35 +114,10 @@ async def edge_speak(text, command_id):
             pass
 
 
-def speak(text, command_id):
-    global latest_command_id
-    latest_command_id = command_id
-    asyncio.run_coroutine_threadsafe(edge_speak(text, command_id), voice_loop)
+
 
 # ==================== SPEECH RECOGNITION ====================
-def listen_and_caption():
-    try:
-        with sr.Microphone() as source:
-            socketio.emit('voice_status', {'status': 'listening'})
-            recognizer.adjust_for_ambient_noise(source, duration=10.5)
-            audio = recognizer.listen(source, timeout=5, phrase_time_limit=5)
-        
-        text = recognizer.recognize_google(audio).lower()
-        socketio.emit('voice_command', {'command': text, 'timestamp': time()})
-        logging.info(f"Voice command: {text}")
-        return text
-    except sr.WaitTimeoutError:
-        return None
-    except sr.UnknownValueError:
-        socketio.emit('voice_status', {'status': 'unknown'})
-        return None
-    except sr.RequestError as e:
-        logging.error(f"Speech recognition error: {e}")
-        socketio.emit('error', {'message': f'Recognition error: {str(e)}'})
-        return None
-    except Exception as e:
-        logging.error(f"Listening error: {e}")
-        return None
+
 
 # ==================== WEATHER FUNCTIONS ====================
 def get_city_coordinates(city):
@@ -647,7 +622,6 @@ def get_equipment_list():
         return jsonify({"equipment": f"Error: {str(e)}"}), 500
 
 @app.route('/generate_route', methods=['POST'])
-
 def generate_route_api():
     try:
         data = request.json
@@ -655,89 +629,79 @@ def generate_route_api():
         start_lon = data.get('start_lon', default_start[1])
         end_lat = data.get('end_lat', default_end[0])
         end_lon = data.get('end_lon', default_end[1])
-        
+
         result = get_route_map_with_coords(start_lat, start_lon, end_lat, end_lon)
         return jsonify(result)
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
 
 @app.route('/voice_command', methods=['POST'])
 def voice_command_api():
     try:
         data = request.json
         command = data.get('command', '').lower()
-        
+
         if not command:
             return jsonify({"error": "No command provided"}), 400
-        
+
         global current_command_id
         current_command_id += 1
-        
-        # Process in background thread to avoid blocking
-        threading.Thread(target=ask_gemini_with_context, args=(command, current_command_id)).start()
-        
+
+        threading.Thread(
+            target=ask_gemini_with_context,
+            args=(command, current_command_id)
+        ).start()
+
         return jsonify({"success": True, "command": command})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/ping', methods=['GET'])
 def ping():
     return jsonify({
         "status": "ok",
         "message": "NDRF Base Station API Running",
-        "voice_bot_active": True
+        "voice_bot_active": False
     })
+
 
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     return send_from_directory(STATIC_DIR, filename)
 
+
 # ==================== SOCKET.IO EVENTS ====================
+
 @socketio.on('connect')
 def handle_connect():
     socketio.emit('connected', {'message': 'Connected to NDRF Base Station'})
 
+
 @socketio.on('voice_command')
 def handle_voice_command(data):
     command = data.get('command', '').lower()
+
     if command:
         global current_command_id
         current_command_id += 1
-        threading.Thread(target=ask_gemini_with_context, args=(command, current_command_id)).start()
+
+        threading.Thread(
+            target=ask_gemini_with_context,
+            args=(command, current_command_id)
+        ).start()
+
 
 @socketio.on('request_equipment')
 def handle_equipment_request():
     items = read_all_equipment()
     socketio.emit('equipment_data', {'items': items})
 
-# ==================== MAIN ENTRY POINT ====================
-if __name__ == "__main__":
-    # Suppress pygame welcome message
-    os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-    
-    print("="*70)
-    print("NDRF/SDRF DISASTER RESPONSE BASE STATION v4.0")
-    print("="*70)
-    print(f"Web Server: http://localhost:5000")
-    print(f"Frontend: {FRONTEND_DIR}")
-    print("-"*70)
-    print("FEATURES:")
-    print("  - Live Camera Feed with Object Detection")
-    print("  - AI Image Analysis (Gemini)")
-    print("  - Equipment Database")
-    print("  - Voice Assistant (Say 'hello' to activate)")
-    print("  - Route Planning")
-    print("="*70)
-    print("")
-    print("Starting server...")
-    print("")
-    
-    # Start voice bot in background
-   
-    
-    # Run Flask app with SocketIO
-import os
 
-port = int(os.environ.get("PORT", 10000))
+# ==================== MAIN ENTRY POINT ====================
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
