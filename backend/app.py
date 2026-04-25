@@ -9,6 +9,8 @@ import pandas as pd
 import folium
 import os
 import requests
+import logging
+
 from time import time
 import threading
 from math import radians, sin, cos, sqrt, atan2
