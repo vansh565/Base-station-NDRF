@@ -9,17 +9,15 @@ import pandas as pd
 import folium
 import os
 import asyncio
-import edge_tts
 import subprocess
-import speech_recognition as sr
+
 import requests
 from time import time
 import nest_asyncio
-import webbrowser
+
 import threading
 from math import radians, sin, cos, sqrt, atan2
-import pygame
-import logging
+
 from queue import Queue
 import tempfile
 
