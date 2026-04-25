@@ -202,4 +202,216 @@ body {
 .alert-toast.show { transform: translateX(0); }
 
 @media (max-width: 1000px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } .commands-grid { grid-template-columns: 1fr; } .ai-panel-body { flex-direction: column; } .ai-right { width: 100%; } .camera-panel-body { flex-direction: column; } .camera-sidebar { width: 100%; max-height: 200px; } }
+
 @media (max-width: 768px) { .sidebar { width: 70px; position: fixed; } .sidebar .logo-text, .sidebar .menu-item span, .sidebar-footer { display: none; } .main-content { margin-left: 70px; } .dashboard-grid { grid-template-columns: 1fr; } .hamburger { display: flex; } .topbar-title { font-size: 9px; } .topbar-badge { display: none; } }
+
+/* Tablets */
+@media (max-width: 1024px) {
+
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .commands-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ai-panel-body,
+    .camera-panel-body {
+        flex-direction: column;
+    }
+
+    .ai-right,
+    .camera-sidebar {
+        width: 100%;
+    }
+
+    .camera-sidebar {
+        max-height: 200px;
+    }
+
+    .equipment-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* Mobile */
+@media (max-width: 768px) {
+
+    body {
+        overflow: auto; /* allow scroll */
+    }
+
+    .sidebar {
+        width: 70px;
+    }
+
+    .sidebar .logo-text,
+    .sidebar .menu-item span,
+    .sidebar-footer {
+        display: none;
+    }
+
+    .main-content {
+        margin-left: 70px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar-title {
+        font-size: 10px;
+        letter-spacing: 1px;
+    }
+
+    .topbar-badge {
+        display: none;
+    }
+
+    .panel-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .input-field {
+        width: 100%;
+    }
+
+    .equipment-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .search-section {
+        flex-direction: column;
+    }
+
+    .search-btn,
+    .reset-btn {
+        width: 100%;
+    }
+
+    .camera-container {
+        height: 250px;
+    }
+
+    .route-map-container {
+        height: 300px;
+    }
+
+    .logs-container {
+        font-size: 10px;
+    }
+}
+
+
+/* Small Mobile */
+@media (max-width: 480px) {
+
+    .topbar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .topbar-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .status-indicator {
+        padding: 3px 6px;
+    }
+
+    .status-label {
+        font-size: 8px;
+    }
+
+    .dash-card-body {
+        padding: 10px;
+    }
+
+    .panel-header h2 {
+        font-size: 11px;
+        letter-spacing: 1px;
+    }
+
+    .route-info {
+        font-size: 11px;
+    }
+}
+/* ===== DASHBOARD RESPONSIVE FIX ===== */
+
+/* Allow scrolling (VERY IMPORTANT) */
+body {
+    overflow-y: auto !important;
+}
+
+/* Fix panels container */
+.panels-container {
+    overflow-y: auto !important;
+    height: auto !important;
+}
+
+/* Fix dashboard grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 16px;
+}
+
+/* Make cards flexible */
+.dash-card {
+    width: 100%;
+    min-height: 180px;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+
+    .main-content {
+        margin-left: 70px !important;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .dash-card {
+        min-height: auto;
+    }
+
+    .dash-card-body {
+        padding: 12px;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+
+    .dashboard-grid {
+        gap: 12px;
+    }
+
+    .dash-card-header {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .dash-card-title {
+        font-size: 9px;
+    }
+}
