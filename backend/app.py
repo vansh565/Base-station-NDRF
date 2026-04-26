@@ -59,7 +59,7 @@ os.makedirs(UPLOADED_IMAGES_DIR, exist_ok=True)
 
 # ==================== API KEYS & CONFIGURATION ====================
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
 ORS_API_KEY = os.getenv("ORS_API_KEY")
 
 try:
@@ -663,4 +663,4 @@ def handle_equipment_request():
 # ==================== MAIN ENTRY POINT ====================
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    socketio.run(app, host="0.0.0.0", port=10000)
