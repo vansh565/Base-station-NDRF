@@ -838,109 +838,28 @@ async function getCoordinates(city) {
 // Get weather using coordinates
 async function getWeather(city) {
     try {
-        const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`);
-        const geoData = await geo.json();
+        const coords = await getCoordinates(city);
 
-        if (!geoData.results) {
-            speak("City not found");
+        if (!coords) {
+            speak("City not found.");
             return;
         }
 
-        const { latitude, longitude } = geoData.results[0];
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m`;
 
-        const res = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,wind_speed_10m,precipitation`
-        );
-
+        const res = await fetch(url);
         const data = await res.json();
 
         const temp = data.current.temperature_2m;
-        const wind = data.current.wind_speed_10m;
-        const rain = data.current.precipitation;
 
-        let alert = "";
-
-        if (rain > 5) alert += "⚠️ Heavy rain! Flood risk. ";
-        if (wind > 40) alert += "⚠️ High wind! Avoid drone flights. ";
-        if (temp > 40) alert += "⚠️ Extreme heat conditions. ";
-
-        const result = `Temperature in ${city} is ${temp}°C. ${alert}`;
+        const result = `Temperature in ${city} is ${temp}°C`;
 
         speak(result);
-        addLog(result);
+        addLog(`🌤️ ${result}`);
 
-        // 🔥 IMPORTANT: CALL AI DECISION SYSTEM
-        disasterDecisionSystem({
-            
-            temp: temp,
-            wind: wind,
-            rain: rain
-            
-        });
-
-    } catch (e) {
-        speak("Weather error");
-        console.log(e);
-    }
-}
-function disasterDecisionSystem(weatherData) {
-    let suggestion = "";
-    let risk = "LOW";
-    let riskPercent = 20;
-    let color = "#2ecc71";
-
-    if (weatherData.rain > 5) {
-        suggestion = "🚤 Flood Risk: Deploy boats & water rescue teams.";
-        risk = "HIGH";
-        riskPercent = 90;
-        color = "#dc2626";
-    } 
-    else if (weatherData.wind > 40) {
-        suggestion = "🌪 High Wind: Stop drones, secure area.";
-        risk = "HIGH";
-        riskPercent = 85;
-        color = "#f39c12";
-    } 
-    else if (weatherData.temp > 40) {
-        suggestion = "🔥 Heat Risk: Activate medical & hydration units.";
-        risk = "MEDIUM";
-        riskPercent = 60;
-        color = "#f39c12";
-    } 
-    else {
-        suggestion = "✅ Safe conditions. Monitoring active.";
-    }
-
-    // 🧠 SPEAK + LOG
-    speak(`AI Decision: ${suggestion}`);
-    addLog(`🧠 AI Decision: ${suggestion}`);
-
-    // ================= SAFE UI UPDATE =================
-
-    const decisionBox = document.getElementById("aiDecisionBox");
-    if (decisionBox) decisionBox.innerText = suggestion;
-
-    const riskEl = document.getElementById("aiRiskLevel");
-    if (riskEl) riskEl.innerText = risk;
-
-    const bar = document.getElementById("riskBar");
-    if (bar) {
-        bar.style.width = riskPercent + "%";
-        bar.style.background = color;
-    }
-
-    const tempEl = document.getElementById("tempVal");
-    if (tempEl) tempEl.innerText = `🌡 ${weatherData.temp}°C`;
-
-    const windEl = document.getElementById("windVal");
-    if (windEl) windEl.innerText = `💨 ${weatherData.wind} km/h`;
-
-    const rainEl = document.getElementById("rainVal");
-    if (rainEl) rainEl.innerText = `🌧 ${weatherData.rain} mm`;
-
-    const alertSound = document.getElementById("alertBeep");
-    if (risk === "HIGH" && alertSound) {
-        alertSound.play();
+    } catch (err) {
+        console.error("Weather error:", err);
+        speak("Unable to fetch weather.");
     }
 }
 // ==================== COMMAND HANDLER ====================
