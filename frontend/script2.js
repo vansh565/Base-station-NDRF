@@ -814,7 +814,54 @@ function stopListening() {
     addLog('🔇 Voice stopped', 'info');
     speak("Voice stopped.");
 }
+// ==================== WEATHER (OPEN-METEO DIRECT JS) ====================
 
+// Get coordinates from city name
+async function getCoordinates(city) {
+    try {
+        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`);
+        const data = await res.json();
+
+        if (data.results && data.results.length > 0) {
+            return {
+                lat: data.results[0].latitude,
+                lon: data.results[0].longitude
+            };
+        }
+        return null;
+    } catch (err) {
+        console.error("Geocoding error:", err);
+        return null;
+    }
+}
+
+// Get weather using coordinates
+async function getWeather(city) {
+    try {
+        const coords = await getCoordinates(city);
+
+        if (!coords) {
+            speak("City not found.");
+            return;
+        }
+
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const temp = data.current.temperature_2m;
+
+        const result = `Temperature in ${city} is ${temp}°C`;
+
+        speak(result);
+        addLog(`🌤️ ${result}`);
+
+    } catch (err) {
+        console.error("Weather error:", err);
+        speak("Unable to fetch weather.");
+    }
+}
 // ==================== COMMAND HANDLER ====================
 async function takeCommand(command) {
     console.log("Command:", command);
@@ -890,27 +937,19 @@ async function takeCommand(command) {
         return;
     }
     
-    // Weather
-    if (command.includes("weather")) {
-        let city = command.replace("weather", "").replace("in", "").trim();
-        if (city) {
-            speak(`Fetching weather for ${city}...`);
-            try {
-                const response = await fetch(`${API_BASE}/weather`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ city: city })
-                });
-                const data = await response.json();
-                speak(data.weather || "Weather data unavailable.");
-            } catch(e) {
-                speak("Could not fetch weather data.");
-            }
-        } else {
-            speak("Please specify a city name. Example: 'weather in Delhi'");
-        }
-        return;
+// ================= WEATHER =================
+if (command.includes("weather")) {
+    let city = command.replace("weather", "").replace("in", "").trim();
+
+    if (city) {
+        speak(`Getting weather for ${city}`);
+        await getWeather(city);
+    } else {
+        speak("Please say a city name like weather in Delhi");
     }
+
+    return;
+}
     
     // Time
     if (command.includes("time")) {
