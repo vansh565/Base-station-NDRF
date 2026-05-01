@@ -165,7 +165,7 @@
         <div class="sidebar-divider"></div>
         <ul class="sidebar-menu">
             <li class="menu-item" data-panel="model-gallery">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="A2">
         <rect x="3" y="3" width="18" height="18"/>
     </svg>
     <span>Model Gallery</span>
@@ -223,7 +223,7 @@
                     <span class="status-label">AI</span>
                 </div>
                 <div class="status-indicator" id="statusDetection">
-                    <span class="status-dot active"></span>
+                    <span class="status-dot active"></span><div class="route-map-container" id="routeMapContainer">
                     <span class="status-label">DET</span>
                 </div>
                 <div class="status-indicator" id="statusVoice">
@@ -374,14 +374,20 @@
                             <span class="dash-card-status standby">IDLE</span>
                         </div>
                         <div class="dash-card-body">
-                            <div class="route-banner" id="dashRoutePreview">
-                                <div class="equip-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="28" height="28">
-                                        <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-                                    </svg>
-                                </div>
-                                <div style="color: #8a9bae; font-size: 11px; margin-top: 8px;">Generate Rescue Route</div>
-                            </div>
+                          <div class="route-banner" id="dashRoutePreview">
+
+    <!-- MAP -->
+    <div id="dashboardMap"></div>
+
+    <!-- LOGO (optional) -->
+    <img src="2.jpg " class="route-logo" />
+
+</div>
+
+<!-- TEXT BELOW -->
+<div class="route-text-below">
+    🚁 Click to Generate Route
+</div>
                         </div>
                     </div>
 
@@ -502,22 +508,75 @@
 
             <!-- ROUTE PANEL -->
             <section class="panel" id="panel-route">
-                <div class="panel-header"><h2>ROUTE PLANNING</h2><div class="panel-actions"><button class="btn btn-neon" id="btnGenRoute">Generate Shortest Path</button></div></div>
-                <div class="panel-body route-panel-body"><div class="route-map-container" id="routeMapContainer"><canvas id="routeCanvas"></canvas><div class="route-overlay" id="routeOverlay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg><span>Click "Generate Shortest Path" to plan route</span></div></div><div class="route-info" id="routeInfo"><h3>Route Status</h3><div class="route-status" id="routeStatus">No route generated</div></div></div>
-            </section>
 
-            <!-- LOGS PANEL -->
-            <section class="panel" id="panel-logs">
-                <div class="panel-header"><h2>LIVE SYSTEM LOGS</h2><div class="panel-actions"><button class="btn btn-neon" id="btnClearLogs">Clear Logs</button></div></div>
-                <div class="panel-body logs-panel-body"><div class="logs-container" id="logsContainer"><div class="log-entry info"><span class="log-time">--:--:--</span><span class="log-tag">SYS</span>System initialized. Awaiting commands.</div></div></div>
-            </section>
+    <div class="panel-header">
+        <h2>ROUTE PLANNING</h2>
+        <div class="panel-actions">
+            <button class="btn btn-neon" id="btnGenRoute">Generate Shortest Path</button>
         </div>
+    </div>
+
+    <div class="panel-body route-panel-body">
+
+        <!-- INPUT -->
+        <div style="margin-bottom:10px; display:flex; gap:10px;">
+            <input id="destinationInput" type="text" 
+                placeholder="Enter place or lat,lng (e.g. Delhi OR 28.6,77.2)" 
+                style="flex:1; padding:10px; border-radius:6px;" />
+        </div>
+
+        <!-- GOOGLE MAP -->
+        <div id="googleMap" style="width:100%; height:500px; border-radius:12px;"></div>
+
+        <!-- OVERLAY -->
+        <div class="route-overlay" id="routeOverlay">
+            <span>Click "Generate Shortest Path" to plan route</span>
+        </div>
+
+        <!-- ROUTE INFO -->
+        <div class="route-info" id="routeInfo">
+            <h3>Route Status</h3>
+            <div class="route-status" id="routeStatus">No route generated</div>
+        </div>
+
+    </div>
+
+</section>
+
+
+          <section class="panel" id="panel-logs">
+
+    <div class="panel-header">
+        <h2>LIVE SYSTEM LOGS</h2>
+        <div class="panel-actions">
+            <button class="btn btn-neon" id="btnClearLogs">Clear Logs</button>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div id="logsContainer" style="
+            height: 400px;
+            overflow-y: auto;
+            background: #0a0c12;
+            padding: 10px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        ">
+            <div class="log-entry">🚀 System booting...</div>
+        </div>
+    </div>
+
+</section>
     </main>
 
     <div class="alert-toast" id="alertToast"><div class="alert-toast-icon">⚠</div><div class="alert-toast-content"><span class="alert-toast-title" id="alertToastTitle">ALERT</span><span class="alert-toast-msg" id="alertToastMsg">--</span></div></div>
     <audio id="alertBeep" preload="auto"><source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2LkYyHfXR3goqNiYR5cXZ/iI2KhHlxdoCIjYqEeXF2gIiNioR5cXaAiI2KhHlwdoCIjYqEeXB2gIiNioR5cHaAiI2KhHlwdoCIjYqEeXB2gA==" type="audio/wav" /></audio>
 
-    <script src="/script2.js"></script>
+    <script src="/render2.js"></script>
+    <script async defer 
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJPOO6EckY7CSxf01VVsDmMneFB92Fveg&callback=initGoogleMap">
+</script>
 </body>
 <!-- IMAGE PREVIEW MODAL -->
 <div id="imageModal" class="img-modal">
