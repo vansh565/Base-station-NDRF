@@ -1,586 +1,568 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>NDRF/SDRF Disaster Response Command Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <style>
-        /* Additional Styles */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        
-        /* Documentation Button Styles */
-        .doc-btn {
-            background: linear-gradient(135deg, #1a3c2c 0%, #0f2a1e 100%);
-            border: 1px solid #2ecc71;
-            color: #2ecc71;
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-family: 'Orbitron', monospace;
-            font-size: 11px;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .doc-btn:hover {
-            background: #2ecc71;
-            color: #0a0c12;
-            transform: translateY(-2px);
-            box-shadow: 0 0 15px rgba(46, 204, 113, 0.3);
-        }
-        
-        /* Dashboard Doc Button */
-        .dashboard-doc-btn {
-            background: rgba(46, 204, 113, 0.1);
-            border: 1px solid #2ecc71;
-            border-radius: 30px;
-            padding: 8px 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 15px;
-        }
-        
-        .dashboard-doc-btn:hover {
-            background: #2ecc71;
-            transform: translateY(-2px);
-        }
-        
-        .dashboard-doc-btn:hover span {
-            color: #0a0c12;
-        }
-        
-        /* Live Banner Styles */
-        .live-banner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            min-height: 180px;
-            background: linear-gradient(135deg, #0a0c12 0%, #0f111a 50%, #1a1c2e 100%);
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        .pulse-ring {
-            width: 80px;
-            height: 80px;
-            background: rgba(46, 204, 113, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(46, 204, 113, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
-        }
-        
-        .live-text {
-            font-family: 'Orbitron', monospace;
-            font-size: 18px;
-            color: #2ecc71;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
-        }
-        
-        .ai-banner-card {
-            background: linear-gradient(135deg, #0f111a 0%, #1a1c2e 100%);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .ai-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(59, 130, 246, 0.15);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #2ecc71;
-            box-shadow: 0 0 8px #2ecc71;
-            animation: greenPulse 1.5s infinite;
-        }
-        
-        @keyframes greenPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.2); }
-        }
-        
-        .dash-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .dash-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-color: #2ecc71;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#060b16" />
+  <meta name="description" content="NDRF / SDRF disaster response command center: live drone feed, AI damage assessment, incident board, routing and weather risk." />
+  <title>NDRF Command Center</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <!-- SIDEBAR -->
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                    <path d="M2 17l10 5 10-5"/>
-                    <path d="M2 12l10 5 10-5"/>
-                </svg>
-            </div>
-            <div class="logo-text">
-                <span class="logo-title">NDRF</span>
-                <span class="logo-sub">COMMAND CENTER</span>
-            </div>
-        </div>
-        <div class="sidebar-divider"></div>
-        <ul class="sidebar-menu">
-            <li class="menu-item" data-panel="model-gallery">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="A2">
-        <rect x="3" y="3" width="18" height="18"/>
-    </svg>
-    <span>Model Gallery</span>
-</li>
-            <li class="menu-item active" data-panel="dashboard">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                <span>Dashboard</span>
-            </li>
-            <li class="menu-item" data-panel="camera">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                <span>Camera Feed</span>
-            </li>
-            <li class="menu-item" data-panel="ai-analysis">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 6v6l4 2"/></svg>
-                <span>AI Analysis</span>
-            </li>
-            <li class="menu-item" data-panel="equipment">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                <span>Equipment</span>
-            </li>
-            <li class="menu-item" data-panel="commands">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-                <span>Voice/Text</span>
-            </li>
-            <li class="menu-item" data-panel="route">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-                <span>Route Plan</span>
-            </li>
-            <li class="menu-item" data-panel="logs">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                <span>Live Logs</span>
-            </li>
-        </ul>
-        <div class="sidebar-footer">
-            <div class="system-clock" id="systemClock">00:00:00</div>
-            <div class="system-date" id="systemDate">--</div>
-        </div>
+
+<!-- ===================== ICON SPRITE ===================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-dash" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></symbol>
+    <symbol id="i-brain" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 0-5.99.14A4 4 0 0 0 4 12a4 4 0 0 0 2 3.46A3.5 3.5 0 0 0 12 18z"/><path d="M12 5a3 3 0 1 1 5.99.14A4 4 0 0 1 20 12a4 4 0 0 1-2 3.46A3.5 3.5 0 0 1 12 18z"/><path d="M12 5v13"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H8a5 5 0 1 1 1.6-9.74A6 6 0 0 1 21 11.5 3.5 3.5 0 0 1 17.5 19z"/><path d="M8 22l1-2M12 22l1-2M16 22l1-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 9l3 3-3 3M12 15h6"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/></symbol>
+    <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
+    <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></symbol>
+    <symbol id="i-snap" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
+    <symbol id="i-flip" viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.5 3.4 9.7 8 11 4.6-1.3 8-5.5 8-11V5l-8-3z"/></symbol>
+  </defs>
+</svg>
+
+<!-- ===================== BOOT SCREEN ===================== -->
+<div class="boot" id="boot" aria-hidden="true">
+  <div class="boot-inner">
+    <div class="boot-emblem">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="56" class="boot-ring r1"/>
+        <circle cx="60" cy="60" r="46" class="boot-ring r2"/>
+        <path d="M60 22 32 33v20c0 19 12 33 28 38 16-5 28-19 28-38V33L60 22z" class="boot-shield"/>
+        <path d="M60 38v32M44 54h32" class="boot-cross"/>
+      </svg>
+    </div>
+    <div class="boot-title">NDRF</div>
+    <div class="boot-sub">राष्ट्रीय आपदा मोचन बल · COMMAND CENTER</div>
+    <div class="boot-bar"><span id="bootBar"></span></div>
+    <div class="boot-log" id="bootLog"></div>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-emblem">
+        <svg viewBox="0 0 120 120"><path d="M60 14 26 27v24c0 23 14.5 40 34 46 19.5-6 34-23 34-46V27L60 14z"/><path d="M60 36v40M40 56h40"/></svg>
+      </div>
+      <div class="brand-text">
+        <strong>NDRF</strong>
+        <span>COMMAND CENTER</span>
+      </div>
+      <button class="icon-btn sidebar-close" id="sidebarClose" aria-label="Close menu"><svg><use href="#i-x"/></svg></button>
+    </div>
+
+    <nav class="nav" aria-label="Main">
+      <div class="nav-label">OPERATIONS</div>
+      <a class="nav-item active" data-panel="dashboard" href="#dashboard"><svg><use href="#i-dash"/></svg><span>Dashboard</span></a>
+      <a class="nav-item" data-panel="map" href="#map"><svg><use href="#i-map"/></svg><span>Ops Map &amp; Routes</span></a>
+      <a class="nav-item" data-panel="incidents" href="#incidents"><svg><use href="#i-alert"/></svg><span>Incidents</span><b class="nav-badge" id="navIncidentCount">0</b></a>
+      <div class="nav-label">INTELLIGENCE</div>
+      <a class="nav-item" data-panel="camera" href="#camera"><svg><use href="#i-camera"/></svg><span>Live Drone Feed</span></a>
+      <a class="nav-item" data-panel="analysis" href="#analysis"><svg><use href="#i-brain"/></svg><span>AI Damage Analysis</span></a>
+      <a class="nav-item" data-panel="assistant" href="#assistant"><svg><use href="#i-mic"/></svg><span>Assistant · Fateh</span></a>
+      <a class="nav-item" data-panel="weather" href="#weather"><svg><use href="#i-cloud"/></svg><span>Weather Risk</span></a>
+      <div class="nav-label">LOGISTICS</div>
+      <a class="nav-item" data-panel="equipment" href="#equipment"><svg><use href="#i-box"/></svg><span>Equipment</span></a>
+      <a class="nav-item" data-panel="gallery" href="#gallery"><svg><use href="#i-image"/></svg><span>Model Gallery</span></a>
+      <a class="nav-item" data-panel="logs" href="#logs"><svg><use href="#i-terminal"/></svg><span>System Logs</span></a>
+      <a class="nav-item" data-panel="help" href="#help"><svg><use href="#i-help"/></svg><span>Field Guide</span></a>
     </nav>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-        <header class="topbar">
-            <div class="topbar-left">
-                <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
-                <h1 class="topbar-title">DISASTER RESPONSE COMMAND CENTER</h1>
-                <span class="topbar-badge">NDRF / SDRF</span>
-            </div>
-            <div class="topbar-right">
-                <div class="status-indicator" id="statusCamera">
-                    <span class="status-dot active"></span>
-                    <span class="status-label">CAM</span>
-                </div>
-                <div class="status-indicator" id="statusAI">
-                    <span class="status-dot active"></span>
-                    <span class="status-label">AI</span>
-                </div>
-                <div class="status-indicator" id="statusDetection">
-                    <span class="status-dot active"></span>
-                    <span class="status-label">DET</span>
-                </div>
-                <div class="status-indicator" id="statusVoice">
-                    <span class="status-dot active"></span>
-                    <span class="status-label">VOICE</span>
-                </div>
-            </div>
-             
-        </header>
+    <div class="sidebar-foot">
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="clock-sub"><span id="clockDate">--</span> · IST</div>
+      <div class="link-state" id="linkState"><i></i><span>CONNECTING…</span></div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
 
-        <div class="panels-container">
-            <!-- DASHBOARD PANEL -->
-             <section class="panel" id="panel-model-gallery">
-    <div class="panel-header">
-        <h2>MY TRAINED ML MODEL VISUALIZATION</h2>
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu"><svg><use href="#i-menu"/></svg></button>
+      <div class="topbar-title">
+        <h1 id="pageTitle">Dashboard</h1>
+        <span class="topbar-sub">Disaster Response Command Center · NDRF / SDRF</span>
+      </div>
+      <div class="status-chips">
+        <span class="chip" id="chipLink" title="Backend link"><i></i>LINK</span>
+        <span class="chip" id="chipAI" title="Gemini AI"><i></i>AI</span>
+        <span class="chip" id="chipCam" title="Camera"><i></i>CAM</span>
+        <span class="chip" id="chipVoice" title="Voice"><i></i>VOICE</span>
+      </div>
+      <button class="icon-btn" id="muteBtn" aria-label="Toggle voice output" title="Voice output"><svg><use href="#i-speaker"/></svg></button>
+      <button class="sos-btn" id="sosBtn" aria-label="Raise SOS"><span>SOS</span></button>
+    </header>
+
+    <div class="ticker" aria-live="polite">
+      <span class="ticker-tag">LIVE</span>
+      <div class="ticker-track"><div class="ticker-move" id="ticker">System initialising · All consoles stand by</div></div>
     </div>
 
-    <div class="panel-body">
-        <div class="gallery-grid">
+    <div class="panels" id="panels">
 
-            <div class="gallery-card">
-                <div class="img-box">
-                    <img src="1.jpeg" onclick="openImage(this)">
-
-                    <span class="label">HUMAN in Debris</span>
-                </div>
-                <p>Confidence: 85%</p>
-            </div>
-
-            <div class="gallery-card">
-                <div class="img-box">
-                   <img src="2.jpeg" onclick="openImage(this)">
-                    <span class="label"> Multiple Humans detect from Drone Camera</span>
-                </div>
-                <p>Confidence: 90%</p>
-            </div>
-
-            <div class="gallery-card">
-                <div class="img-box">
-                    <img src="3.jpeg" onclick="openImage(this)">
-                    <span class="label">Human and Animal Detection Behind the wall using Thermal sensing</span>
-                </div>
-                <p>Confidence: 91%</p>
-            </div>
-
-            <div class="gallery-card">
-                <div class="img-box">
-                   <img src="4.jpeg" onclick="openImage(this)">
-                    <span class="label">Multiple Humans detect using Thermal Sensing</span>
-                </div>
-                <p>Confidence: 96%</p>
-            </div>
-
+      <!-- ============ DASHBOARD ============ -->
+      <section class="panel active" id="panel-dashboard" data-title="Dashboard">
+        <div class="hero">
+          <div class="hero-radar" aria-hidden="true"><div class="sweep"></div><i></i><i></i><i></i></div>
+          <div class="hero-text">
+            <span class="eyebrow">OPERATIONAL STATUS</span>
+            <h2 id="heroStatus">All systems nominal</h2>
+            <p id="heroSub">Base: <b id="baseName">NDRF Base · Dehradun</b> · Consoles online: <b id="consoleCount">1</b></p>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-goto="camera" data-action="start-camera"><svg><use href="#i-camera"/></svg>Start Drone Feed</button>
+            <button class="btn" data-goto="analysis"><svg><use href="#i-brain"/></svg>Analyze Image</button>
+            <button class="btn" data-action="new-incident"><svg><use href="#i-plus"/></svg>New Incident</button>
+          </div>
         </div>
-    </div>
-</section>
-            <section class="panel active" id="panel-dashboard">
-                <div class="dashboard-grid">
-                    <div class="dash-card">
-    <div class="dash-card-header">
-        <span class="dash-card-icon">🧠</span>
-        <span class="dash-card-title">AI DECISION</span>
-    </div>
-    <div class="dash-card-body">
-        <div id="aiDecisionBox" style="font-size:12px; color:#2ecc71;">
-            Waiting for data...
+
+        <div class="kpis">
+          <div class="kpi" data-goto="incidents"><span class="kpi-label">OPEN INCIDENTS</span><b class="kpi-val" id="kpiIncidents">0</b><span class="kpi-foot" id="kpiIncidentsFoot">none critical</span><svg class="kpi-ico"><use href="#i-alert"/></svg></div>
+          <div class="kpi accent-green" data-goto="camera"><span class="kpi-label">SURVIVORS SPOTTED</span><b class="kpi-val" id="kpiSurvivors">0</b><span class="kpi-foot">live feed · this session</span><svg class="kpi-ico"><use href="#i-user"/></svg></div>
+          <div class="kpi accent-cyan" data-goto="equipment"><span class="kpi-label">EQUIPMENT LINES</span><b class="kpi-val" id="kpiEquip">--</b><span class="kpi-foot" id="kpiEquipFoot">-- categories</span><svg class="kpi-ico"><use href="#i-box"/></svg></div>
+          <div class="kpi accent-amber" data-goto="weather"><span class="kpi-label">WEATHER RISK</span><b class="kpi-val" id="kpiRisk">--</b><span class="kpi-foot" id="kpiRiskFoot">fetching…</span><svg class="kpi-ico"><use href="#i-cloud"/></svg></div>
         </div>
+
+        <div class="grid-dash">
+          <div class="card card-map">
+            <div class="card-head"><h3><svg><use href="#i-map"/></svg>Operations Map</h3><button class="link-btn" data-goto="map">Open full map →</button></div>
+            <div class="mini-map" id="miniMap"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><svg><use href="#i-brain"/></svg>AI Decision</h3><span class="pill" id="decisionPill">STANDBY</span></div>
+            <p class="decision" id="aiDecision">Waiting for weather and field data…</p>
+            <div class="riskbar"><span id="decisionBar"></span></div>
+            <div class="mini-wx" id="miniWx">
+              <div><small>TEMP</small><b id="wxTemp">--</b></div>
+              <div><small>WIND</small><b id="wxWind">--</b></div>
+              <div><small>RAIN</small><b id="wxRain">--</b></div>
+              <div><small>HUMID</small><b id="wxHum">--</b></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><svg><use href="#i-alert"/></svg>Alert Feed</h3><span class="pill pill-red" id="alertCount">0</span></div>
+            <ul class="feed" id="alertFeed"></ul>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><svg><use href="#i-wifi"/></svg>System Status</h3><button class="link-btn" id="btnRecheck">Re-check</button></div>
+            <ul class="sys" id="sysList">
+              <li><span>Backend API</span><b data-sys="api">CHECKING</b></li>
+              <li><span>Realtime link</span><b data-sys="socket">CHECKING</b></li>
+              <li><span>Gemini AI</span><b data-sys="ai">CHECKING</b></li>
+              <li><span>Detection model</span><b data-sys="model">NOT LOADED</b></li>
+              <li><span>Camera</span><b data-sys="camera">OFF</b></li>
+              <li><span>Voice recognition</span><b data-sys="voice">OFF</b></li>
+              <li><span>Uptime</span><b id="uptime">0s</b></li>
+            </ul>
+          </div>
+
+          <div class="card card-wide">
+            <div class="card-head"><h3><svg><use href="#i-alert"/></svg>Active Incidents</h3><button class="link-btn" data-goto="incidents">Manage →</button></div>
+            <div class="inc-mini" id="incMini"><div class="empty">No active incidents. Use <b>New Incident</b> or <b>SOS</b> to raise one.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ OPS MAP ============ -->
+      <section class="panel" id="panel-map" data-title="Ops Map &amp; Routes">
+        <div class="map-layout">
+          <div class="card map-card"><div class="big-map" id="opsMap"></div></div>
+          <div class="map-side">
+            <div class="card">
+              <div class="card-head"><h3><svg><use href="#i-route"/></svg>Rescue Route</h3></div>
+              <label class="field"><span>From</span>
+                <select id="routeFrom"><option value="base">NDRF Base</option><option value="me">My current location</option></select>
+              </label>
+              <label class="field"><span>To (place or lat,lng)</span>
+                <input id="routeTo" type="text" placeholder="e.g. Rishikesh or 30.08,78.26" autocomplete="off" />
+              </label>
+              <div class="row">
+                <button class="btn btn-primary grow" id="btnRoute"><svg><use href="#i-route"/></svg>Plan Route</button>
+                <button class="btn icon-only" id="btnClearRoute" title="Clear route"><svg><use href="#i-x"/></svg></button>
+              </div>
+              <div class="route-out" id="routeOut">
+                <div><small>DISTANCE</small><b id="routeKm">--</b></div>
+                <div><small>ETA</small><b id="routeEta">--</b></div>
+                <div><small>ENGINE</small><b id="routeProv">--</b></div>
+              </div>
+              <p class="hint">Tip: click anywhere on the map to set it as the destination.</p>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3><svg><use href="#i-layers"/></svg>Map Layers</h3></div>
+              <div class="seg" id="layerSeg">
+                <button class="active" data-layer="dark">Tactical</button>
+                <button data-layer="sat">Satellite</button>
+                <button data-layer="street">Street</button>
+              </div>
+              <div class="row">
+                <button class="btn grow" id="btnLocate"><svg><use href="#i-locate"/></svg>My Location</button>
+                <button class="btn grow" id="btnFitIncidents"><svg><use href="#i-alert"/></svg>Show Incidents</button>
+              </div>
+              <ul class="legend">
+                <li><i style="--c:var(--green)"></i>Base</li><li><i style="--c:var(--red)"></i>Critical</li>
+                <li><i style="--c:var(--orange)"></i>High</li><li><i style="--c:var(--amber)"></i>Medium</li>
+                <li><i style="--c:var(--cyan)"></i>Low / you</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INCIDENTS ============ -->
+      <section class="panel" id="panel-incidents" data-title="Incidents">
+        <div class="split">
+          <div class="card">
+            <div class="card-head"><h3><svg><use href="#i-plus"/></svg>Raise Incident</h3></div>
+            <form id="incidentForm" class="form" autocomplete="off">
+              <label class="field"><span>Title *</span><input name="title" required maxlength="120" placeholder="e.g. Building collapse, Sector 4" /></label>
+              <div class="row">
+                <label class="field grow"><span>Type</span>
+                  <select name="type">
+                    <option>earthquake</option><option>flood</option><option>fire</option><option>landslide</option>
+                    <option>building collapse</option><option>cyclone</option><option>road accident</option>
+                    <option>chemical</option><option>medical</option><option>missing person</option><option selected>other</option>
+                  </select>
+                </label>
+                <label class="field grow"><span>Severity</span>
+                  <select name="severity"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select>
+                </label>
+              </div>
+              <div class="row">
+                <label class="field grow"><span>Latitude</span><input name="lat" inputmode="decimal" placeholder="30.3165" /></label>
+                <label class="field grow"><span>Longitude</span><input name="lon" inputmode="decimal" placeholder="78.0322" /></label>
+                <button type="button" class="btn icon-only self-end" id="btnIncLocate" title="Use my location"><svg><use href="#i-locate"/></svg></button>
+              </div>
+              <div class="row">
+                <label class="field grow"><span>People affected</span><input name="people_affected" type="number" min="0" value="0" /></label>
+                <label class="field grow"><span>Assigned team</span><input name="team" maxlength="80" placeholder="e.g. 8 BN · Team Alpha" /></label>
+              </div>
+              <label class="field"><span>Notes</span><textarea name="notes" rows="3" maxlength="1000" placeholder="Access, hazards, resources requested…"></textarea></label>
+              <button class="btn btn-primary" type="submit"><svg><use href="#i-send"/></svg>Broadcast Incident</button>
+            </form>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <h3><svg><use href="#i-alert"/></svg>Incident Board</h3>
+              <div class="seg small" id="incFilter">
+                <button class="active" data-f="ACTIVE">Active</button><button data-f="ALL">All</button><button data-f="RESOLVED">Resolved</button>
+              </div>
+            </div>
+            <div class="inc-list" id="incList"><div class="empty">Loading incidents…</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CAMERA ============ -->
+      <section class="panel" id="panel-camera" data-title="Live Drone Feed">
+        <div class="cam-layout">
+          <div class="card cam-card">
+            <div class="cam-view" id="camView">
+              <video id="camVideo" autoplay muted playsinline></video>
+              <canvas id="camCanvas"></canvas>
+              <div class="hud" aria-hidden="true">
+                <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
+                <div class="crosshair"></div>
+                <div class="hud-top"><span class="rec"><i></i>FEED 01</span><span id="hudTime">--:--:--</span></div>
+                <div class="hud-bottom"><span id="hudCount">0 TARGETS</span><span id="hudFps">0 FPS</span></div>
+                <div class="scanline"></div>
+              </div>
+              <div class="cam-placeholder" id="camPlaceholder">
+                <div class="drone-ico" aria-hidden="true">
+                  <svg viewBox="0 0 160 90"><rect x="58" y="38" width="44" height="16" rx="5"/><path d="M58 46H24M102 46h34"/><ellipse class="rotor" cx="24" cy="40" rx="20" ry="4"/><ellipse class="rotor" cx="136" cy="40" rx="20" ry="4"/><circle cx="80" cy="62" r="5"/></svg>
+                </div>
+                <b>DRONE FEED STANDBY</b>
+                <span>Press <b>Start Feed</b> to begin. The detection model loads on first use.</span>
+              </div>
+            </div>
+            <div class="toolbar">
+              <button class="btn btn-primary" id="btnCamStart"><svg><use href="#i-camera"/></svg>Start Feed</button>
+              <button class="btn btn-danger" id="btnCamStop" disabled><svg><use href="#i-x"/></svg>Stop</button>
+              <button class="btn" id="btnCamFlip" title="Switch camera"><svg><use href="#i-flip"/></svg><span class="hide-sm">Switch</span></button>
+              <button class="btn toggle" id="btnBoxes" aria-pressed="true"><svg><use href="#i-scan"/></svg><span class="hide-sm">Boxes</span></button>
+              <button class="btn toggle" id="btnHumanOnly" aria-pressed="false"><svg><use href="#i-user"/></svg><span class="hide-sm">Humans only</span></button>
+              <button class="btn" id="btnSnap" title="Snapshot"><svg><use href="#i-snap"/></svg><span class="hide-sm">Snapshot</span></button>
+              <button class="btn" id="btnCamAnalyze"><svg><use href="#i-brain"/></svg><span class="hide-sm">AI Analyze</span></button>
+              <button class="btn" id="btnFullscreen" title="Fullscreen"><svg><use href="#i-expand"/></svg></button>
+            </div>
+          </div>
+          <div class="cam-side">
+            <div class="card">
+              <div class="card-head"><h3><svg><use href="#i-scan"/></svg>Detections</h3><span class="pill pill-green" id="detCount">0</span></div>
+              <ul class="det-list" id="detList"><li class="empty">No detections yet</li></ul>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3><svg><use href="#i-snap"/></svg>Snapshots</h3><span class="hint">tap to analyze</span></div>
+              <div class="snaps" id="snaps"><div class="empty">Snapshots appear here</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ AI ANALYSIS ============ -->
+      <section class="panel" id="panel-analysis" data-title="AI Damage Analysis">
+        <div class="split">
+          <div class="card">
+            <div class="card-head"><h3><svg><use href="#i-image"/></svg>Field Image</h3><span class="hint">drop · paste · upload</span></div>
+            <label class="dropzone" id="dropzone">
+              <input type="file" id="fileInput" accept="image/*" hidden />
+              <img id="previewImg" alt="Selected field image" hidden />
+              <div class="dz-empty" id="dzEmpty">
+                <svg><use href="#i-upload"/></svg>
+                <b>Drop a disaster image here</b>
+                <span>or tap to choose · JPG / PNG / WEBP · max 10 MB</span>
+              </div>
+              <div class="dz-scan" id="dzScan" hidden><span></span></div>
+            </label>
+            <div class="row">
+              <button class="btn btn-primary grow" id="btnAnalyze" disabled><svg><use href="#i-brain"/></svg>Run AI Assessment</button>
+              <button class="btn" id="btnUseFrame" title="Use current camera frame"><svg><use href="#i-camera"/></svg><span class="hide-sm">Live frame</span></button>
+              <button class="btn icon-only" id="btnClearImage" title="Clear"><svg><use href="#i-x"/></svg></button>
+            </div>
+            <label class="check"><input type="checkbox" id="chkGps" /> Attach my GPS location to the analysis</label>
+          </div>
+
+          <div class="card report-card">
+            <div class="card-head"><h3><svg><use href="#i-brain"/></svg>Tactical Briefing</h3><span class="hint" id="reportMeta"></span></div>
+            <div class="report-idle" id="reportIdle">
+              <div class="pulse-orb"><svg><use href="#i-brain"/></svg></div>
+              <b>Awaiting imagery</b>
+              <span>Gemini will return observations, hazards, immediate actions, team, strategy, equipment and a risk level.</span>
+            </div>
+            <div class="report-loading" id="reportLoading" hidden>
+              <div class="loader"><i></i><i></i><i></i></div>
+              <span id="loadingText">Uploading image…</span>
+            </div>
+            <div class="report" id="report" hidden>
+              <div class="report-top">
+                <div class="gauge" id="riskGauge" style="--v:0">
+                  <svg viewBox="0 0 120 70"><path class="g-bg" d="M10 60a50 50 0 0 1 100 0"/><path class="g-fg" d="M10 60a50 50 0 0 1 100 0"/></svg>
+                  <b id="riskScore">0</b><span id="riskLevel">LOW</span>
+                </div>
+                <div class="report-summary">
+                  <span class="eyebrow" id="disasterType">ASSESSMENT</span>
+                  <p id="reportSummary"></p>
+                  <div class="tags">
+                    <span class="tag"><svg><use href="#i-user"/></svg><b id="peopleVisible">0</b> people visible</span>
+                    <span class="tag"><svg><use href="#i-shield"/></svg><b id="teamSize">0</b> personnel</span>
+                  </div>
+                </div>
+              </div>
+              <div class="report-grid" id="reportGrid"></div>
+              <div class="row wrap">
+                <button class="btn" id="btnSpeakReport"><svg><use href="#i-speaker"/></svg>Read aloud</button>
+                <button class="btn" id="btnCopyReport"><svg><use href="#i-copy"/></svg>Copy</button>
+                <button class="btn" id="btnDownloadReport"><svg><use href="#i-download"/></svg>Download</button>
+                <button class="btn btn-primary" id="btnReportIncident"><svg><use href="#i-alert"/></svg>Raise Incident</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ASSISTANT ============ -->
+      <section class="panel" id="panel-assistant" data-title="Assistant · Fateh">
+        <div class="assist-layout">
+          <div class="card chat-card">
+            <div class="card-head">
+              <h3><svg><use href="#i-mic"/></svg>Fateh · Voice &amp; Text Assistant</h3>
+              <button class="link-btn" id="btnClearChat">Clear</button>
+            </div>
+            <div class="chat" id="chat" aria-live="polite"></div>
+            <div class="chips" id="quickChips">
+              <button data-cmd="weather in Dehradun">🌦 weather in Dehradun</button>
+              <button data-cmd="route to Rishikesh">🗺 route to Rishikesh</button>
+              <button data-cmd="search equipment rope">📦 search equipment rope</button>
+              <button data-cmd="start camera">📹 start camera</button>
+              <button data-cmd="status report">📊 status report</button>
+              <button data-cmd="what is the golden hour in rescue">🧠 golden hour?</button>
+            </div>
+            <form class="composer" id="composer">
+              <button type="button" class="mic-btn" id="micBtn" aria-label="Start voice input"><svg><use href="#i-mic"/></svg><span class="mic-waves"><i></i><i></i><i></i></span></button>
+              <input id="chatInput" type="text" placeholder="Ask Fateh or give a command…" autocomplete="off" maxlength="500" />
+              <button class="btn btn-primary icon-only" type="submit" aria-label="Send"><svg><use href="#i-send"/></svg></button>
+            </form>
+          </div>
+          <div class="card cmd-card">
+            <div class="card-head"><h3><svg><use href="#i-help"/></svg>Commands</h3></div>
+            <ul class="cmd-list" id="cmdList"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ WEATHER ============ -->
+      <section class="panel" id="panel-weather" data-title="Weather Risk">
+        <div class="card">
+          <form class="row" id="wxForm">
+            <input id="wxCity" class="grow" type="text" placeholder="City or district, e.g. Guwahati" autocomplete="off" />
+            <button class="btn btn-primary" type="submit"><svg><use href="#i-cloud"/></svg>Check</button>
+            <button class="btn" type="button" id="wxBase" title="Base location"><svg><use href="#i-shield"/></svg><span class="hide-sm">Base</span></button>
+          </form>
+        </div>
+        <div class="wx-grid">
+          <div class="card wx-now">
+            <span class="eyebrow" id="wxPlace">--</span>
+            <div class="wx-temp"><b id="wxBigTemp">--</b><span id="wxDesc">--</span></div>
+            <div class="wx-stats">
+              <div><small>FEELS LIKE</small><b id="wxFeels">--</b></div>
+              <div><small>WIND / GUST</small><b id="wxWindG">--</b></div>
+              <div><small>RAIN</small><b id="wxRainNow">--</b></div>
+              <div><small>HUMIDITY</small><b id="wxHumNow">--</b></div>
+              <div><small>CLOUD</small><b id="wxCloud">--</b></div>
+              <div><small>DRONE OPS</small><b id="wxDrone">--</b></div>
+            </div>
+          </div>
+          <div class="card wx-risk">
+            <div class="card-head"><h3><svg><use href="#i-brain"/></svg>Risk Engine</h3><span class="pill" id="wxRiskPill">--</span></div>
+            <div class="gauge big" id="wxGauge" style="--v:0">
+              <svg viewBox="0 0 120 70"><path class="g-bg" d="M10 60a50 50 0 0 1 100 0"/><path class="g-fg" d="M10 60a50 50 0 0 1 100 0"/></svg>
+              <b id="wxScore">0</b><span>RISK SCORE</span>
+            </div>
+            <p class="decision" id="wxAdvice">--</p>
+            <ul class="flags" id="wxFlags"></ul>
+          </div>
+          <div class="card wx-days">
+            <div class="card-head"><h3><svg><use href="#i-cloud"/></svg>3-Day Outlook</h3></div>
+            <div class="days" id="wxDays"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ EQUIPMENT ============ -->
+      <section class="panel" id="panel-equipment" data-title="Equipment">
+        <div class="card">
+          <div class="row wrap">
+            <input id="eqSearch" class="grow" type="search" placeholder="Search equipment: rope, boat, oxygen, generator…" autocomplete="off" />
+            <select id="eqStatus"><option value="">All status</option><option>Available</option><option>Limited</option></select>
+          </div>
+          <div class="chips cats" id="eqCats"></div>
+        </div>
+        <div class="eq-summary" id="eqSummary"></div>
+        <div class="eq-grid" id="eqGrid"><div class="empty">Loading inventory…</div></div>
+      </section>
+
+      <!-- ============ GALLERY ============ -->
+      <section class="panel" id="panel-gallery" data-title="Model Gallery">
+        <p class="lead">Results from our custom-trained detector (drone RGB + thermal imagery), trained in Google Colab.</p>
+        <div class="gallery">
+          <figure class="shot" data-src="1.jpeg"><img src="1.jpeg" alt="Human detected in debris" loading="lazy" /><figcaption><b>Human in debris</b><span>confidence 85%</span></figcaption></figure>
+          <figure class="shot" data-src="2.jpeg"><img src="2.jpeg" alt="Multiple humans detected from drone camera" loading="lazy" /><figcaption><b>Multiple humans · drone camera</b><span>confidence 90%</span></figcaption></figure>
+          <figure class="shot" data-src="3.jpeg"><img src="3.jpeg" alt="Human and animal behind a wall, thermal" loading="lazy" /><figcaption><b>Human + animal behind wall · thermal</b><span>confidence 91%</span></figcaption></figure>
+          <figure class="shot" data-src="4.jpeg"><img src="4.jpeg" alt="Multiple humans, thermal sensing" loading="lazy" /><figcaption><b>Multiple humans · thermal</b><span>confidence 96%</span></figcaption></figure>
+        </div>
+      </section>
+
+      <!-- ============ LOGS ============ -->
+      <section class="panel" id="panel-logs" data-title="System Logs">
+        <div class="card">
+          <div class="card-head">
+            <h3><svg><use href="#i-terminal"/></svg>Console</h3>
+            <div class="row">
+              <div class="seg small" id="logFilter"><button class="active" data-f="all">All</button><button data-f="warn">Warn</button><button data-f="error">Error</button></div>
+              <button class="btn icon-only" id="btnExportLogs" title="Export"><svg><use href="#i-download"/></svg></button>
+              <button class="btn icon-only" id="btnClearLogs" title="Clear"><svg><use href="#i-trash"/></svg></button>
+            </div>
+          </div>
+          <div class="console" id="console"></div>
+        </div>
+      </section>
+
+      <!-- ============ HELP ============ -->
+      <section class="panel" id="panel-help" data-title="Field Guide">
+        <div class="help-grid">
+          <div class="card"><h3 class="h-ico">📹 Live drone feed</h3><p>Connect a drone receiver, capture card or phone camera. COCO-SSD runs on this device: <b>green = person</b>, orange = vehicle, blue = other. A person in view raises an alert and counts toward <i>Survivors spotted</i>.</p></div>
+          <div class="card"><h3 class="h-ico">🧠 AI damage analysis</h3><p>Upload, paste or drop an image, or use the live frame. Gemini returns a structured briefing with a 0–100 risk score. You can raise an incident from it in one tap.</p></div>
+          <div class="card"><h3 class="h-ico">🚨 Incidents &amp; SOS</h3><p>Incidents broadcast instantly to every connected console. <b>SOS</b> raises a CRITICAL incident at your GPS position. Move incidents through <i>Open → Responding → Resolved</i>.</p></div>
+          <div class="card"><h3 class="h-ico">🗺️ Routes</h3><p>Routes use OpenRouteService when configured, otherwise the free OSRM router. If both are unreachable you get a straight-line estimate, so a route is always available.</p></div>
+          <div class="card"><h3 class="h-ico">🌦️ Weather risk</h3><p>Rain &gt; 5 mm → flood risk HIGH. Wind &gt; 40 km/h or gusts &gt; 60 → HIGH. Temperature &gt; 40 °C → heat MEDIUM. Drone flights are not advised above 30 km/h wind.</p></div>
+          <div class="card"><h3 class="h-ico">⌨️ Shortcuts</h3><p><kbd>1</kbd>–<kbd>9</kbd> switch panels · <kbd>/</kbd> focus assistant · <kbd>Esc</kbd> close dialogs · <kbd>Ctrl</kbd>+<kbd>V</kbd> paste an image on the Analysis panel.</p></div>
+        </div>
+      </section>
     </div>
+
+    <!-- ===================== MOBILE BOTTOM NAV ===================== -->
+    <nav class="bottom-nav" aria-label="Quick navigation">
+      <a data-panel="dashboard" href="#dashboard" class="active"><svg><use href="#i-dash"/></svg><span>Home</span></a>
+      <a data-panel="map" href="#map"><svg><use href="#i-map"/></svg><span>Map</span></a>
+      <a data-panel="camera" href="#camera"><svg><use href="#i-camera"/></svg><span>Feed</span></a>
+      <a data-panel="analysis" href="#analysis"><svg><use href="#i-brain"/></svg><span>AI</span></a>
+      <a data-panel="assistant" href="#assistant"><svg><use href="#i-mic"/></svg><span>Fateh</span></a>
+    </nav>
+  </main>
 </div>
-                    <!-- LIVE FEED CARD -->
-                    <div class="dash-card camera-card" data-goto="camera">
-                        <div class="dash-card-header">
-                            <span class="dash-card-icon">●</span>
-                            <span class="dash-card-title">LIVE FEED</span>
-                            <span class="dash-card-status live">ACTIVE</span>
-                        </div>
-                        <div class="dash-card-body">
-                            <div class="live-banner">
-                                <div class="live-banner-content">
-                                    <div class="pulse-ring">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40">
-                                            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-                                            <circle cx="12" cy="13" r="4"/>
-                                        </svg>
-                                    </div>
-                                    <div class="live-text">DRONE STANDBY</div>
-                                    <div class="live-subtext">Click to start live feed</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- AI ANALYSIS CARD -->
-                    <div class="dash-card ai-card" data-goto="ai-analysis">
-                        <div class="dash-card-header">
-                            <span class="dash-card-icon">◆</span>
-                            <span class="dash-card-title">AI ANALYSIS</span>
-                            <span class="dash-card-status standby">READY</span>
-                        </div>
-                        <div class="dash-card-body">
-                            <div class="ai-banner-card">
-                                <div class="ai-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="30" height="30">
-                                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/>
-                                        <path d="M12 6v6l4 2"/>
-                                    </svg>
-                                </div>
-                                <div class="ai-title">AI READY</div>
-                                <div class="ai-subtitle">Upload image for disaster analysis</div>
-                            </div>
-                        </div>
-                    </div>
+<!-- ===================== OVERLAYS ===================== -->
+<div class="toasts" id="toasts" aria-live="assertive"></div>
 
-                    <!-- EQUIPMENT CARD -->
-                    <div class="dash-card equip-card" data-goto="equipment">
-                        <div class="dash-card-header">
-                            <span class="dash-card-icon">■</span>
-                            <span class="dash-card-title">EQUIPMENT</span>
-                            <span class="dash-card-status standby">READY</span>
-                        </div>
-                        <div class="dash-card-body">
-                            <div class="equip-banner">
-                                <div class="equip-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="28" height="28">
-                                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                                        <polyline points="14 2 14 8 20 8"/>
-                                    </svg>
-                                </div>
-                                <div class="equip-stats">
-                                    <div class="stat">
-                                        <div class="stat-number" id="dashEquipCount">--</div>
-                                        <div class="stat-label">ITEMS</div>
-                                    </div>
-                                    <div class="stat">
-                                        <div class="stat-number" id="dashCatCount">--</div>
-                                        <div class="stat-label">CATEGORIES</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ROUTE CARD -->
-                    <div class="dash-card route-card" data-goto="route">
-                        <div class="dash-card-header">
-                            <span class="dash-card-icon">▶</span>
-                            <span class="dash-card-title">ROUTE PLAN</span>
-                            <span class="dash-card-status standby">IDLE</span>
-                        </div>
-                        <div class="dash-card-body">
-                          <div class="route-banner" id="dashRoutePreview">
-
-    <!-- MAP -->
-    <div id="dashboardMap"></div>
-
-    <!-- LOGO (optional) -->
-    <img src="2.jpg " class="route-logo" />
-
+<div class="modal" id="sosModal" role="dialog" aria-modal="true" aria-labelledby="sosTitle" hidden>
+  <div class="modal-box sos-box">
+    <div class="sos-ring"><span>SOS</span></div>
+    <h3 id="sosTitle">Raise SOS?</h3>
+    <p>A <b>CRITICAL</b> incident is broadcast to every console, using your GPS position if available.</p>
+    <input id="sosNote" type="text" maxlength="120" placeholder="Short description (optional)" />
+    <div class="row">
+      <button class="btn grow" data-close>Cancel</button>
+      <button class="btn btn-danger grow" id="sosConfirm">Confirm SOS</button>
+    </div>
+  </div>
 </div>
 
-<!-- TEXT BELOW -->
-<div class="route-text-below">
-    🚁 Click to Generate Route
+<div class="modal" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" hidden>
+  <button class="icon-btn lb-close" data-close aria-label="Close"><svg><use href="#i-x"/></svg></button>
+  <img id="lightboxImg" alt="" />
 </div>
-                        </div>
-                    </div>
 
-                    <!-- ALERTS CARD -->
-                    <div class="dash-card alert-card">
-                        <div class="dash-card-header">
-                            <span class="dash-card-icon">⚠</span>
-                            <span class="dash-card-title">ALERTS</span>
-                            <span class="dash-card-status" id="alertCount">0</span>
-                        </div>
-                        <div class="dash-card-body">
-                            <div class="alert-banner">
-                                <div class="alert-feed" id="dashAlertFeed">
-                                    <div class="alert-item info">✅ System initialized. All systems operational.</div>
-                                    <div class="alert-item info">🟢 Camera ready. Click Start to begin.</div>
-                                    <div class="alert-item info">🤖 AI assistant Fateh is online.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<audio id="beep" preload="auto" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2LkYyHfXR3goqNiYR5cXZ/iI2KhHlxdoCIjYqEeXF2gIiNioR5cXaAiI2KhHlwdoCIjYqEeXB2gIiNioR5cHaAiI2KhHlwdoCIjYqEeXB2gA=="></audio>
 
-                    <!-- SYSTEM STATUS CARD with Documentation Button -->
-                    <div class="dash-card status-card">
-                        <div class="dash-card-header">
-                            <span class="dash-card-icon">◉</span>
-                            <span class="dash-card-title">SYSTEM STATUS</span>
-                        </div>
-                        <div class="dash-card-body">
-                            <div class="system-status-grid" id="dashSystemStatus">
-                                <div class="sys-row"><span class="sys-label">🟢 Camera</span><span class="sys-val on" id="sysCam">READY</span></div>
-                                <div class="sys-row"><span class="sys-label">🟢 AI Server</span><span class="sys-val on" id="sysAI">ONLINE</span></div>
-                                <div class="sys-row"><span class="sys-label">🟢 Detection</span><span class="sys-val on" id="sysDet">ACTIVE</span></div>
-                                <div class="sys-row"><span class="sys-label">🟢 Voice</span><span class="sys-val on" id="sysVoice">READY</span></div>
-                                <div class="sys-row"><span class="sys-label">📊 Uptime</span><span class="sys-val" id="sysUptime">0s</span></div>
-                            </div>
-                            <!-- DOCUMENTATION BUTTON IN DASHBOARD -->
-                            <div class="dashboard-doc-btn" id="dashboardDocBtn">
-                                <span style="color: #2ecc71; font-size: 12px;">📚 VIEW COMMAND DOCUMENTATION</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- CAMERA PANEL -->
-            <section class="panel" id="panel-camera">
-                <div class="panel-header"><h2>LIVE CAMERA / DRONE FEED</h2><div class="panel-actions"><button class="btn btn-neon" id="btnToggleBoxes">Toggle Bounding Boxes</button><button class="btn btn-neon" id="btnHumanOnly">Human Only Mode</button><button class="btn btn-neon" id="btnFullscreen">Fullscreen</button><button class="btn btn-danger" id="btnStopCamera">Stop Camera</button><button class="btn btn-success" id="btnStartCamera">Start Camera</button></div></div>
-                <div class="panel-body camera-panel-body">
-                    <div class="camera-container" id="cameraContainer">
-                        <video id="cameraVideo" autoplay muted playsinline></video>
-                        <canvas id="cameraCanvas"></canvas>
-                        <div class="camera-crosshair"></div>
-                        <div class="camera-info-overlay"><span class="cam-label" id="camLabel">FEED 01</span><span class="cam-time" id="camTime">--:--:--</span><span class="cam-fps" id="camFps">0 FPS</span></div>
-                        <div class="camera-placeholder" id="cameraPlaceholder">
-                            <svg viewBox="0 0 200 150" width="80" height="60">
-                                <rect x="70" y="60" width="60" height="30" rx="5" fill="#2ecc71" opacity="0.9"/>
-                                <circle cx="40" cy="50" r="8" fill="none" stroke="#2ecc71" stroke-width="2">
-                                    <animateTransform attributeName="transform" type="rotate" from="0 40 50" to="360 40 50" dur="0.5s" repeatCount="indefinite"/>
-                                </circle>
-                                <circle cx="160" cy="50" r="8" fill="none" stroke="#2ecc71" stroke-width="2">
-                                    <animateTransform attributeName="transform" type="rotate" from="0 160 50" to="360 160 50" dur="0.5s" repeatCount="indefinite"/>
-                                </circle>
-                                <text x="100" y="135" text-anchor="middle" fill="#2ecc71" font-size="10">DRONE READY</text>
-                            </svg>
-                            <span>Click "Start Camera" to begin feed</span>
-                        </div>
-                    </div>
-                    <div class="camera-sidebar"><div class="detection-list" id="detectionList"><h3>Detections</h3><div class="detection-empty">No detections yet</div></div></div>
-                </div>
-            </section>
-
-            <!-- AI ANALYSIS PANEL -->
-            <section class="panel" id="panel-ai-analysis">
-                <div class="panel-header"><h2>AI IMAGE ANALYSIS</h2><div class="panel-actions"><button class="btn btn-neon" id="btnAnalyzeFrame">Analyze Live Frame</button><button class="btn btn-neon" id="btnUploadImage">Upload Image</button><input type="file" id="imageUploadInput" accept="image/*" hidden /></div></div>
-                <div class="panel-body ai-panel-body">
-                    <div class="ai-left"><div class="ai-image-container" id="aiImageContainer"><div class="ai-image-dropzone" id="aiDropzone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Drop image here or click Upload</span></div><img id="aiPreviewImg" class="ai-preview-img" hidden /><canvas id="aiCanvas" class="ai-canvas" hidden></canvas></div></div>
-                    <div class="ai-right"><div class="ai-result-container" id="aiResultContainer"><div class="ai-result-idle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 6v6l4 2"/></svg><h3>Awaiting Analysis</h3><p>Capture a frame or upload an image to begin AI analysis</p></div><div class="ai-result-data" id="aiResultData" hidden><div class="ai-result-section"><h4>Observations</h4><p id="aiObservations">--</p></div><div class="ai-result-section"><h4>Risk Level</h4><div class="risk-meter" id="riskMeter"><div class="risk-bar" id="riskBar"></div></div><span class="risk-label" id="riskLabel">--</span></div><div class="ai-result-section"><h4>Strategy</h4><p id="aiStrategy">--</p></div><div class="ai-result-section"><h4>Equipment Needed</h4><p id="aiEquipment">--</p></div></div><div class="ai-loading" id="aiLoading" hidden><div class="spinner"></div><span>Analyzing image...</span></div></div></div>
-                </div>
-            </section>
-            
-
-            <!-- EQUIPMENT PANEL -->
-            <section class="panel" id="panel-equipment">
-                <div class="panel-header"><h2>EQUIPMENT MANAGEMENT</h2><div class="panel-actions"><input type="text" class="input-field" id="equipSearchInput" placeholder="Search equipment (e.g. rope, boat, medical)..." /><button class="btn btn-neon" id="btnSearchEquip">Search Equipment</button></div></div>
-                <div class="panel-body equip-panel-body"><div class="equip-results" id="equipResults"><div class="equip-idle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><h3>Equipment Database</h3><p>Search for available rescue equipment and supplies</p></div></div></div>
-            </section>
-
-            <!-- COMMANDS PANEL -->
-            <section class="panel" id="panel-commands">
-                <div class="panel-header"><h2>VOICE &amp; TEXT COMMANDS</h2></div>
-                <div class="panel-body commands-panel-body">
-                    <div class="commands-grid">
-                        <div class="command-section voice-section"><h3>Voice Control</h3><div class="voice-visualizer" id="voiceVisualizer"><div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div><div class="voice-transcript" id="voiceTranscript"><span class="transcript-label">TRANSCRIPT:</span><span class="transcript-text" id="transcriptText">--</span></div><div class="voice-controls"><button class="btn btn-success btn-lg" id="btnStartVoice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Start Listening</button><button class="btn btn-danger btn-lg" id="btnStopVoice" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="6" y="6" width="12" height="12"/></svg>Stop Listening</button></div><div class="voice-commands-list"><h4>Available Commands:</h4><div class="cmd-chip" data-cmd="analyze image">"analyze image"</div><div class="cmd-chip" data-cmd="show route">"show route"</div><div class="cmd-chip" data-cmd="check equipment">"check equipment"</div><div class="cmd-chip" data-cmd="start camera">"start camera"</div><div class="cmd-chip" data-cmd="stop camera">"stop camera"</div><div class="cmd-chip" data-cmd="stop listening">"stop listening"</div><div class="cmd-chip" data-cmd="help">"help"</div></div></div>
-                        <div class="command-section text-section">
-                            <h3>Text Command</h3>
-                            <div class="text-command-input">
-                                <input type="text" class="input-field input-lg" id="textCommandInput" placeholder="Type command (e.g. analyze image, show route)..." />
-                                <button class="btn btn-neon btn-lg" id="btnExecuteCmd">Execute Command</button>
-                            </div>
-                            <!-- DOCUMENTATION BUTTON IN COMMANDS PANEL -->
-                            <div style="margin: 10px 0; display: flex; gap: 10px;">
-                                <button class="btn btn-success" id="btnShowDocs" style="flex: 1;"> Show Documentation</button> 
-                                <button class="btn btn-info" id="btnClearResponse" style="flex: 1;">🗑 Clear Response</button>
-                            </div>
-                            <div id="commandResponse" style="margin: 15px 0; padding: 12px; background: #0a0c12; border-radius: 8px; min-height: 60px; font-family: monospace;">
-                                <span style="color:#5a6e7a;">Command responses will appear here...</span>
-                            </div>
-                            <div class="command-history" id="commandHistory">
-                                <h4>Command History</h4>
-                                <div class="history-list" id="historyList">
-                                    <div class="history-empty">No commands executed yet</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ROUTE PANEL -->
-            <section class="panel" id="panel-route">
-
-    <div class="panel-header">
-        <h2>ROUTE PLANNING</h2>
-        <div class="panel-actions">
-            <button class="btn btn-neon" id="btnGenRoute">Generate Shortest Path</button>
-        </div>
-    </div>
-
-    <div class="panel-body route-panel-body">
-
-        <!-- INPUT -->
-        <div style="margin-bottom:10px; display:flex; gap:10px;">
-            <input id="destinationInput" type="text" 
-                placeholder="Enter place or lat,lng (e.g. Delhi OR 28.6,77.2)" 
-                style="flex:1; padding:10px; border-radius:6px;" />
-        </div>
-
-        <!-- GOOGLE MAP -->
-        <div id="googleMap" style="width:100%; height:500px; border-radius:12px;"></div>
-
-        <!-- OVERLAY -->
-        <div class="route-overlay" id="routeOverlay">
-            <span>Click "Generate Shortest Path" to plan route</span>
-        </div>
-
-        <!-- ROUTE INFO -->
-        <div class="route-info" id="routeInfo">
-            <h3>Route Status</h3>
-            <div class="route-status" id="routeStatus">No route generated</div>
-        </div>
-
-    </div>
-
-</section>
-
-
-          <section class="panel" id="panel-logs">
-
-    <div class="panel-header">
-        <h2>LIVE SYSTEM LOGS</h2>
-        <div class="panel-actions">
-            <button class="btn btn-neon" id="btnClearLogs">Clear Logs</button>
-        </div>
-    </div>
-
-    <div class="panel-body">
-        <div id="logsContainer" style="
-            height: 400px;
-            overflow-y: auto;
-            background: #0a0c12;
-            padding: 10px;
-            border-radius: 10px;
-            font-family: monospace;
-            font-size: 12px;
-        ">
-            <div class="log-entry">🚀 System booting...</div>
-        </div>
-    </div>
-
-</section>
-    </main>
-
-    <div class="alert-toast" id="alertToast"><div class="alert-toast-icon">⚠</div><div class="alert-toast-content"><span class="alert-toast-title" id="alertToastTitle">ALERT</span><span class="alert-toast-msg" id="alertToastMsg">--</span></div></div>
-    <audio id="alertBeep" preload="auto"><source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2LkYyHfXR3goqNiYR5cXZ/iI2KhHlxdoCIjYqEeXF2gIiNioR5cXaAiI2KhHlwdoCIjYqEeXB2gIiNioR5cHaAiI2KhHlwdoCIjYqEeXB2gA==" type="audio/wav" /></audio>
-
-    <script src="/render2.js"></script>
-    <script async defer 
-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJPOO6EckY7CSxf01VVsDmMneFB92Fveg&callback=initGoogleMap">
-</script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/core.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/incidents.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/weather.js"></script>
+<script src="js/equipment.js"></script>
+<script src="js/assistant.js"></script>
+<script src="js/main.js"></script>
 </body>
-<!-- IMAGE PREVIEW MODAL -->
-<div id="imageModal" class="img-modal">
-    <span class="close-btn">&times;</span>
-    <img class="modal-content" id="modalImg">
-</div>
-</html> 
+</html>
