@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 40" width="1200" height="40" role="img" aria-label="section divider">
+  <defs>
+    <linearGradient id="fade" x1="0" x2="1">
+      <stop offset="0" stop-color="#2ecc71" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#2ecc71"/>
+      <stop offset="1" stop-color="#2ecc71" stop-opacity="0"/>
+    </linearGradient>
+    <style>
+      .ecg{fill:none;stroke:url(#fade);stroke-width:2.5;stroke-linejoin:round;stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 3s linear infinite}
+      @keyframes draw{0%{stroke-dashoffset:1400}70%,100%{stroke-dashoffset:0}}
+    </style>
+  </defs>
+  <path class="ecg" d="M0 20H470L490 20L500 6L512 34L524 2L536 30L546 20H600L612 14L622 26L632 20H730L750 20L760 8L772 32L784 20H1200"/>
+</svg>

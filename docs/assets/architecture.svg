@@ -1,0 +1,213 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 830" width="1200" height="830" role="img" aria-label="NDRF Base Station system architecture: browser command center, Flask base station, external AI and mapping services">
+  <defs>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="#2ecc71" stroke-opacity=".05"/>
+    </pattern>
+    <marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#2ecc71"/></marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3b82f6"/></marker>
+    <marker id="aa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#f39c12"/></marker>
+    <style>
+      text{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif}
+      .h{font-size:13px;font-weight:800;letter-spacing:3px;fill:#2ecc71}
+      .hs{font:500 11px Consolas,'Courier New',monospace;fill:#5a6e7a}
+      .t{font-size:14px;font-weight:700;fill:#e8f5ee}
+      .d{font:500 11.5px Consolas,'Courier New',monospace;fill:#8a9bae}
+      .ep{font:700 13px Consolas,'Courier New',monospace;fill:#c8d1e6}
+      .tag{font:700 10px Consolas,'Courier New',monospace;letter-spacing:1px}
+      .lane{fill:#0f111a;stroke-width:1.5}
+      .box{fill:#0a0c12;stroke:#1f3a2c;stroke-width:1.2;transition:all .3s}
+      .live{stroke:#2ecc71;stroke-width:2.5;fill:none;stroke-dasharray:10 6;animation:flow .8s linear infinite}
+      .api{stroke:#3b82f6;stroke-width:1.6;fill:none;stroke-dasharray:4 6;opacity:.7;animation:flow 1.6s linear infinite}
+      .dir{stroke:#f39c12;stroke-width:2.2;fill:none;stroke-dasharray:8 6;animation:flow 1s linear infinite}
+      .idle{stroke:#5a6e7a;stroke-width:1.4;fill:none;stroke-dasharray:2 6;animation:flow 3s linear infinite}
+      @keyframes flow{to{stroke-dashoffset:-32}}
+      .pulse{animation:pulse 1.6s ease-in-out infinite}
+      @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+      .breathe{animation:breathe 3s ease-in-out infinite}
+      @keyframes breathe{0%,100%{stroke-opacity:.35}50%{stroke-opacity:1}}
+    </style>
+  </defs>
+
+  <rect width="1200" height="830" rx="18" fill="#0a0c12"/>
+  <rect width="1200" height="830" rx="18" fill="url(#grid)"/>
+  <text x="600" y="44" text-anchor="middle" style="font-size:22px;font-weight:800;letter-spacing:5px;fill:#e8f5ee">SYSTEM ARCHITECTURE</text>
+  <text x="600" y="66" text-anchor="middle" class="hs">browser command center  ⇄  flask base station  ⇄  ai · routing · weather services</text>
+
+  <!-- ============ LANES ============ -->
+  <rect x="24" y="84" width="352" height="600" rx="14" class="lane breathe" stroke="#2ecc71"/>
+  <text x="44" y="112" class="h">① OPERATOR BROWSER</text>
+  <text x="44" y="130" class="hs">frontend/index.html · render2.js</text>
+
+  <rect x="424" y="84" width="352" height="600" rx="14" class="lane breathe" stroke="#3b82f6" style="animation-delay:1s"/>
+  <text x="444" y="112" class="h" style="fill:#3b82f6">② FLASK BASE STATION</text>
+  <text x="444" y="130" class="hs">backend/app.py · Flask-SocketIO (threading)</text>
+
+  <rect x="824" y="84" width="352" height="600" rx="14" class="lane breathe" stroke="#a78bfa" style="animation-delay:2s"/>
+  <text x="844" y="112" class="h" style="fill:#a78bfa">③ CLOUD SERVICES</text>
+  <text x="844" y="130" class="hs">AI · routing · hosting · config</text>
+
+  <rect x="24" y="696" width="752" height="110" rx="14" class="lane" stroke="#f39c12" stroke-opacity=".6"/>
+  <text x="44" y="716" class="h" style="fill:#f39c12">④ DIRECT BROWSER CALLS</text>
+  <text x="300" y="716" class="hs">no backend hop</text>
+
+  <!-- ============ FLOWS (drawn under boxes) ============ -->
+  <path id="pB" d="M356 181 C392 181 408 172 444 172" class="live" marker-end="url(#ag)"/>
+  <path id="pA" d="M356 259 C402 259 400 172 444 172" class="live" marker-end="url(#ag)"/>
+  <path id="pC1" d="M756 172 C800 172 800 200 844 200" class="live" marker-end="url(#ag)"/>
+  <path id="pC2" d="M756 226 C800 226 800 210 844 210" class="api" marker-end="url(#ab)"/>
+  <path id="pC3" d="M756 280 C800 280 800 220 844 220" class="api" marker-end="url(#ab)"/>
+  <path id="pC4" d="M756 334 C800 334 800 230 844 230" class="api" marker-end="url(#ab)"/>
+  <path id="pD" d="M756 388 C800 388 800 340 844 340" class="api" marker-end="url(#ab)"/>
+  <path id="pE" d="M844 366 C812 366 800 384 800 414 V612 C800 632 790 638 756 638" class="api" marker-end="url(#ab)"/>
+  <path id="pF" d="M444 638 C400 638 400 649 356 649" class="api" marker-end="url(#ab)"/>
+  <path id="pG" d="M356 337 C404 337 400 550 444 550" class="idle"/>
+  <path id="pH" d="M356 571 H394 Q404 571 404 581 V726" class="dir" marker-end="url(#aa)"/>
+  <path id="pI" d="M172 680 V726" class="dir" marker-end="url(#aa)"/>
+
+  <!-- ============ LEFT: BROWSER MODULES ============ -->
+  <g>
+    <rect x="44" y="150" width="312" height="62" rx="10" class="box" stroke="#2ecc71"/>
+    <text x="58" y="172" class="t">📹 Camera Feed + Detection</text>
+    <text x="58" y="190" class="d">getUserMedia 1280×720 → COCO-SSD</text>
+    <text x="58" y="204" class="d">mobilenet_v2 · TF.js · every 100 ms</text>
+
+    <rect x="44" y="228" width="312" height="62" rx="10" class="box" stroke="#2ecc71"/>
+    <text x="58" y="250" class="t">🧠 AI Image Analysis</text>
+    <text x="58" y="268" class="d">upload / live frame → JPEG (q 0.8)</text>
+    <text x="58" y="282" class="d">multipart POST → tactical report</text>
+
+    <rect x="44" y="306" width="312" height="62" rx="10" class="box"/>
+    <text x="58" y="328" class="t">🎤 Voice Assistant “Fateh”</text>
+    <text x="58" y="346" class="d">Web Speech STT + TTS · en-IN</text>
+    <text x="58" y="360" class="d">client-side intent router</text>
+
+    <rect x="44" y="384" width="312" height="62" rx="10" class="box"/>
+    <text x="58" y="406" class="t">📦 Equipment Inventory</text>
+    <text x="58" y="424" class="d">100 items · 10 categories</text>
+    <text x="58" y="438" class="d">instant client-side search</text>
+
+    <rect x="44" y="462" width="312" height="62" rx="10" class="box"/>
+    <text x="58" y="484" class="t">🖼️ Trained Model Gallery</text>
+    <text x="58" y="502" class="d">thermal + drone detection results</text>
+    <text x="58" y="516" class="d">human · animal · debris (85–96%)</text>
+
+    <rect x="44" y="540" width="312" height="62" rx="10" class="box"/>
+    <text x="58" y="562" class="t">🌦️ Weather Risk Engine</text>
+    <text x="58" y="580" class="d">rain&gt;5mm · wind&gt;40 · temp&gt;40°C</text>
+    <text x="58" y="594" class="d">→ AI decision · risk bar · beep</text>
+
+    <rect x="44" y="618" width="312" height="62" rx="10" class="box"/>
+    <text x="58" y="640" class="t">🗺️ Route Planner</text>
+    <text x="58" y="658" class="d">Google Directions · DRIVING</text>
+    <text x="58" y="672" class="d">place name or "lat,lng" input</text>
+  </g>
+
+  <!-- ============ MIDDLE: ENDPOINTS ============ -->
+  <g>
+    <rect x="444" y="150" width="312" height="44" rx="9" class="box" stroke="#2ecc71" stroke-width="2"/>
+    <text x="460" y="177" class="ep">POST /analyze_image</text>
+    <rect x="690" y="161" width="52" height="22" rx="11" fill="#2ecc71" fill-opacity=".15" stroke="#2ecc71"/>
+    <circle cx="702" cy="172" r="4" fill="#2ecc71" class="pulse"/>
+    <text x="711" y="176" class="tag" fill="#2ecc71">LIVE</text>
+
+    <rect x="444" y="204" width="312" height="44" rx="9" class="box"/>
+    <text x="460" y="231" class="ep">POST /analyze_frame</text><text x="740" y="230" text-anchor="end" class="tag" fill="#3b82f6">base64[]</text>
+    <rect x="444" y="258" width="312" height="44" rx="9" class="box"/>
+    <text x="460" y="285" class="ep">POST /gemini</text><text x="740" y="284" text-anchor="end" class="tag" fill="#3b82f6">Q&amp;A</text>
+    <rect x="444" y="312" width="312" height="44" rx="9" class="box"/>
+    <text x="460" y="339" class="ep">POST /voice_command</text><text x="740" y="338" text-anchor="end" class="tag" fill="#3b82f6">thread</text>
+    <rect x="444" y="366" width="312" height="44" rx="9" class="box"/>
+    <text x="460" y="393" class="ep">POST /generate_route</text><text x="740" y="392" text-anchor="end" class="tag" fill="#3b82f6">ORS</text>
+    <rect x="444" y="420" width="312" height="44" rx="9" class="box"/>
+    <text x="460" y="447" class="ep">GET  /equipment_list</text><text x="740" y="446" text-anchor="end" class="tag" fill="#3b82f6">text</text>
+    <rect x="444" y="474" width="312" height="44" rx="9" class="box"/>
+    <text x="460" y="501" class="ep">GET  /ping</text><text x="740" y="500" text-anchor="end" class="tag" fill="#3b82f6">health</text>
+    <rect x="444" y="528" width="312" height="44" rx="9" class="box"/>
+    <text x="460" y="555" class="ep">⚡ Socket.IO</text><text x="740" y="554" text-anchor="end" class="tag" fill="#5a6e7a">connect · events</text>
+
+    <rect x="444" y="596" width="312" height="84" rx="10" class="box" stroke="#3b82f6"/>
+    <text x="460" y="620" class="t">🗺️ Folium Map Renderer</text>
+    <text x="460" y="640" class="d">→ /static/shortest_route_map.html</text>
+    <text x="460" y="656" class="d">fallback: Haversine straight line</text>
+    <text x="460" y="672" class="d">ETA ≈ distance × 2.5 min</text>
+  </g>
+
+  <!-- ============ RIGHT: SERVICES ============ -->
+  <g>
+    <rect x="844" y="150" width="312" height="130" rx="12" class="box" stroke="#a78bfa" stroke-width="2"/>
+    <text x="860" y="176" class="t" style="font-size:16px">✨ Google Gemini</text>
+    <text x="860" y="198" class="d" style="fill:#a78bfa">gemini-3-flash-preview</text>
+    <text x="860" y="222" class="d">vision → OBSERVATIONS · ACTIONS</text>
+    <text x="860" y="238" class="d">         TEAM · STRATEGY · RISK</text>
+    <text x="860" y="262" class="d">text   → 1–2 line NDRF answers</text>
+
+    <rect x="844" y="300" width="312" height="80" rx="12" class="box"/>
+    <text x="860" y="326" class="t">🛣️ OpenRouteService</text>
+    <text x="860" y="346" class="d">v2/directions/driving-car/geojson</text>
+    <text x="860" y="364" class="d">distance · duration · polyline</text>
+
+    <rect x="844" y="400" width="312" height="130" rx="12" class="box"/>
+    <text x="860" y="426" class="t">☁️ Render Web Service</text>
+    <text x="860" y="448" class="d">base-station-ndrf-7.onrender.com</text>
+    <text x="860" y="466" class="d">Python 3.11.9 · port 10000</text>
+    <text x="860" y="484" class="d">serves API + ../frontend statics</text>
+    <text x="860" y="510" class="d" style="fill:#5a6e7a">gunicorn · eventlet in reqs</text>
+
+    <rect x="844" y="550" width="312" height="130" rx="12" class="box"/>
+    <text x="860" y="576" class="t">🔐 Configuration</text>
+    <text x="860" y="598" class="d">GOOGLE_API_KEY → Gemini</text>
+    <text x="860" y="616" class="d">ORS_API_KEY    → routing</text>
+    <text x="860" y="634" class="d">Maps JS key    → index.html</text>
+    <text x="860" y="660" class="d" style="fill:#5a6e7a">logs → voice_assistant.log</text>
+  </g>
+
+  <!-- ============ BOTTOM: DIRECT CALLS ============ -->
+  <g>
+    <rect x="44" y="726" width="256" height="66" rx="10" class="box" stroke="#f39c12"/>
+    <text x="58" y="750" class="t">🗺️ Google Maps Platform</text>
+    <text x="58" y="770" class="d">Maps JS + DirectionsService</text>
+    <text x="58" y="784" class="d">origin: Dehradun (30.31,78.03)</text>
+
+    <rect x="320" y="726" width="236" height="66" rx="10" class="box" stroke="#f39c12"/>
+    <text x="334" y="750" class="t">🌦️ Open-Meteo</text>
+    <text x="334" y="770" class="d">geocoding + forecast</text>
+    <text x="334" y="784" class="d">free · no API key</text>
+
+    <rect x="576" y="726" width="180" height="66" rx="10" class="box"/>
+    <text x="590" y="750" class="t">📦 CDN libraries</text>
+    <text x="590" y="770" class="d">TF.js 3.18 · COCO 2.2</text>
+    <text x="590" y="784" class="d">Socket.IO 4.7.2</text>
+  </g>
+
+  <!-- ============ LEGEND ============ -->
+  <g transform="translate(824 696)">
+    <rect width="352" height="110" rx="14" fill="#0f111a" stroke="#1f3a2c"/>
+    <text x="20" y="22" class="h" style="fill:#8a9bae;font-size:11px">LEGEND</text>
+    <path d="M20 42H70" class="live"/><text x="82" y="46" class="d">live path · active UI (render2.js)</text>
+    <path d="M20 62H70" class="api"/><text x="82" y="66" class="d">available API · legacy UI / scripts</text>
+    <path d="M20 82H70" class="dir"/><text x="82" y="86" class="d">direct browser → third-party API</text>
+    <path d="M20 100H70" class="idle"/><text x="82" y="104" class="d">socket connected, no handlers</text>
+  </g>
+
+  <!-- ============ MOVING PACKETS ============ -->
+  <g fill="#2ecc71">
+    <circle r="5"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath xlink:href="#pA"/></animateMotion></circle>
+    <circle r="5"><animateMotion dur="1.2s" begin=".6s" repeatCount="indefinite"><mpath xlink:href="#pB"/></animateMotion></circle>
+    <circle r="5"><animateMotion dur="1.2s" begin=".3s" repeatCount="indefinite"><mpath xlink:href="#pC1"/></animateMotion></circle>
+  </g>
+  <circle r="4" fill="#e8f5ee"><animateMotion dur="1.2s" begin=".9s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath xlink:href="#pC1"/></animateMotion></circle>
+  <circle r="4" fill="#e8f5ee"><animateMotion dur="1.6s" begin="1.4s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath xlink:href="#pA"/></animateMotion></circle>
+  <g fill="#3b82f6" opacity=".8">
+    <circle r="3.5"><animateMotion dur="2.6s" repeatCount="indefinite"><mpath xlink:href="#pC2"/></animateMotion></circle>
+    <circle r="3.5"><animateMotion dur="2.6s" begin=".8s" repeatCount="indefinite"><mpath xlink:href="#pC3"/></animateMotion></circle>
+    <circle r="3.5"><animateMotion dur="2.6s" begin="1.6s" repeatCount="indefinite"><mpath xlink:href="#pC4"/></animateMotion></circle>
+    <circle r="3.5"><animateMotion dur="2.4s" repeatCount="indefinite"><mpath xlink:href="#pD"/></animateMotion></circle>
+    <circle r="3.5"><animateMotion dur="3s" begin="1.2s" repeatCount="indefinite"><mpath xlink:href="#pE"/></animateMotion></circle>
+    <circle r="3.5"><animateMotion dur="2s" begin="2s" repeatCount="indefinite"><mpath xlink:href="#pF"/></animateMotion></circle>
+  </g>
+  <g fill="#f39c12">
+    <circle r="4.5"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath xlink:href="#pH"/></animateMotion></circle>
+    <circle r="4.5"><animateMotion dur=".9s" begin=".4s" repeatCount="indefinite"><mpath xlink:href="#pI"/></animateMotion></circle>
+  </g>
+  <circle r="3" fill="#5a6e7a"><animateMotion dur="4s" repeatCount="indefinite"><mpath xlink:href="#pG"/></animateMotion></circle>
+</svg>

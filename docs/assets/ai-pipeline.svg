@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 470" width="1200" height="470" role="img" aria-label="AI image analysis pipeline from capture to spoken tactical briefing">
+  <defs>
+    <linearGradient id="trail" x1="0" x2="1"><stop offset="0" stop-color="#2ecc71" stop-opacity="0"/><stop offset="1" stop-color="#2ecc71"/></linearGradient>
+    <style>
+      text{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif}
+      .n{font-size:12.5px;font-weight:800;letter-spacing:2.5px;fill:#e8f5ee}
+      .d{font:500 11px Consolas,'Courier New',monospace;fill:#8a9bae}
+      .k{font:700 12px Consolas,'Courier New',monospace;letter-spacing:1px}
+      .v{font:500 12px Consolas,'Courier New',monospace;fill:#c8d1e6}
+      .h{font-size:13px;font-weight:800;letter-spacing:3px}
+      .rail{stroke:#2ecc71;stroke-width:3;stroke-dasharray:12 8;animation:flow 1s linear infinite}
+      @keyframes flow{to{stroke-dashoffset:-40}}
+      .spin{animation:spin 6s linear infinite;transform-box:fill-box;transform-origin:center}
+      @keyframes spin{to{transform:rotate(360deg)}}
+    </style>
+  </defs>
+  <rect width="1200" height="470" rx="18" fill="#0a0c12"/>
+  <text x="40" y="44" class="h" fill="#2ecc71">AI IMAGE ANALYSIS PIPELINE</text>
+  <text x="40" y="64" class="d">render2.js · analyzeLiveFrame() / analyzeUploadedImage()  →  app.py · analyze_image()</text>
+  <line x1="100" y1="150" x2="1100" y2="150" stroke="#1f3a2c" stroke-width="3"/>
+  <line x1="100" y1="150" x2="1100" y2="150" class="rail" opacity=".45"/>
+  <g>
+    <circle cx="100" cy="150" r="44" fill="#2ecc71" opacity="0"><animate attributeName="opacity" values="0;0;.28;0;0" keyTimes="0;0.0005;0.001;0.100;1" dur="7.0s" repeatCount="indefinite"/><animate attributeName="r" values="34;34;50;56;34" keyTimes="0;0.0005;0.001;0.100;1" dur="7.0s" repeatCount="indefinite"/></circle>
+    <circle cx="100" cy="150" r="34" fill="#0f111a" stroke="#2ecc71" stroke-width="2"/>
+    <circle cx="100" cy="150" r="40" fill="none" stroke="#2ecc71" stroke-opacity=".5" stroke-dasharray="3 9" class="spin"/>
+    <text x="100" y="159" text-anchor="middle" style="font-size:24px">📸</text>
+    <circle cx="125" cy="125" r="10" fill="#2ecc71"/><text x="125" y="129" text-anchor="middle" style="font:800 11px Consolas,monospace;fill:#0a0c12">1</text>
+    <text x="100" y="214" text-anchor="middle" class="n">CAPTURE</text>
+    <text x="100" y="232" text-anchor="middle" class="d">webcam frame</text>
+    <text x="100" y="247" text-anchor="middle" class="d">or file upload</text>
+  </g>
+  <g>
+    <circle cx="267" cy="150" r="44" fill="#2ecc71" opacity="0"><animate attributeName="opacity" values="0;0;.28;0;0" keyTimes="0;0.123;0.143;0.243;1" dur="7.0s" repeatCount="indefinite"/><animate attributeName="r" values="34;34;50;56;34" keyTimes="0;0.123;0.143;0.243;1" dur="7.0s" repeatCount="indefinite"/></circle>
+    <circle cx="267" cy="150" r="34" fill="#0f111a" stroke="#2ecc71" stroke-width="2"/>
+    <circle cx="267" cy="150" r="40" fill="none" stroke="#2ecc71" stroke-opacity=".5" stroke-dasharray="3 9" class="spin"/>
+    <text x="267" y="159" text-anchor="middle" style="font-size:24px">🖼️</text>
+    <circle cx="292" cy="125" r="10" fill="#2ecc71"/><text x="292" y="129" text-anchor="middle" style="font:800 11px Consolas,monospace;fill:#0a0c12">2</text>
+    <text x="267" y="214" text-anchor="middle" class="n">ENCODE</text>
+    <text x="267" y="232" text-anchor="middle" class="d">canvas → JPEG</text>
+    <text x="267" y="247" text-anchor="middle" class="d">quality 0.8</text>
+  </g>
+  <g>
+    <circle cx="433" cy="150" r="44" fill="#3b82f6" opacity="0"><animate attributeName="opacity" values="0;0;.28;0;0" keyTimes="0;0.267;0.287;0.387;1" dur="7.0s" repeatCount="indefinite"/><animate attributeName="r" values="34;34;50;56;34" keyTimes="0;0.267;0.287;0.387;1" dur="7.0s" repeatCount="indefinite"/></circle>
+    <circle cx="433" cy="150" r="34" fill="#0f111a" stroke="#3b82f6" stroke-width="2"/>
+    <circle cx="433" cy="150" r="40" fill="none" stroke="#3b82f6" stroke-opacity=".5" stroke-dasharray="3 9" class="spin"/>
+    <text x="433" y="159" text-anchor="middle" style="font-size:24px">📤</text>
+    <circle cx="458" cy="125" r="10" fill="#3b82f6"/><text x="458" y="129" text-anchor="middle" style="font:800 11px Consolas,monospace;fill:#0a0c12">3</text>
+    <text x="433" y="214" text-anchor="middle" class="n">UPLOAD</text>
+    <text x="433" y="232" text-anchor="middle" class="d">multipart form</text>
+    <text x="433" y="247" text-anchor="middle" class="d">POST /analyze_image</text>
+  </g>
+  <g>
+    <circle cx="600" cy="150" r="44" fill="#3b82f6" opacity="0"><animate attributeName="opacity" values="0;0;.28;0;0" keyTimes="0;0.410;0.430;0.530;1" dur="7.0s" repeatCount="indefinite"/><animate attributeName="r" values="34;34;50;56;34" keyTimes="0;0.410;0.430;0.530;1" dur="7.0s" repeatCount="indefinite"/></circle>
+    <circle cx="600" cy="150" r="34" fill="#0f111a" stroke="#3b82f6" stroke-width="2"/>
+    <circle cx="600" cy="150" r="40" fill="none" stroke="#3b82f6" stroke-opacity=".5" stroke-dasharray="3 9" class="spin"/>
+    <text x="600" y="159" text-anchor="middle" style="font-size:24px">🐍</text>
+    <circle cx="625" cy="125" r="10" fill="#3b82f6"/><text x="625" y="129" text-anchor="middle" style="font:800 11px Consolas,monospace;fill:#0a0c12">4</text>
+    <text x="600" y="214" text-anchor="middle" class="n">DECODE</text>
+    <text x="600" y="232" text-anchor="middle" class="d">Flask + Pillow</text>
+    <text x="600" y="247" text-anchor="middle" class="d">Image.open()</text>
+  </g>
+  <g>
+    <circle cx="767" cy="150" r="44" fill="#a78bfa" opacity="0"><animate attributeName="opacity" values="0;0;.28;0;0" keyTimes="0;0.553;0.573;0.673;1" dur="7.0s" repeatCount="indefinite"/><animate attributeName="r" values="34;34;50;56;34" keyTimes="0;0.553;0.573;0.673;1" dur="7.0s" repeatCount="indefinite"/></circle>
+    <circle cx="767" cy="150" r="34" fill="#0f111a" stroke="#a78bfa" stroke-width="2"/>
+    <circle cx="767" cy="150" r="40" fill="none" stroke="#a78bfa" stroke-opacity=".5" stroke-dasharray="3 9" class="spin"/>
+    <text x="767" y="159" text-anchor="middle" style="font-size:24px">✨</text>
+    <circle cx="792" cy="125" r="10" fill="#a78bfa"/><text x="792" y="129" text-anchor="middle" style="font:800 11px Consolas,monospace;fill:#0a0c12">5</text>
+    <text x="767" y="214" text-anchor="middle" class="n">REASON</text>
+    <text x="767" y="232" text-anchor="middle" class="d">Gemini vision</text>
+    <text x="767" y="247" text-anchor="middle" class="d">+ commander prompt</text>
+  </g>
+  <g>
+    <circle cx="933" cy="150" r="44" fill="#f39c12" opacity="0"><animate attributeName="opacity" values="0;0;.28;0;0" keyTimes="0;0.697;0.717;0.817;1" dur="7.0s" repeatCount="indefinite"/><animate attributeName="r" values="34;34;50;56;34" keyTimes="0;0.697;0.717;0.817;1" dur="7.0s" repeatCount="indefinite"/></circle>
+    <circle cx="933" cy="150" r="34" fill="#0f111a" stroke="#f39c12" stroke-width="2"/>
+    <circle cx="933" cy="150" r="40" fill="none" stroke="#f39c12" stroke-opacity=".5" stroke-dasharray="3 9" class="spin"/>
+    <text x="933" y="159" text-anchor="middle" style="font-size:24px">📋</text>
+    <circle cx="958" cy="125" r="10" fill="#f39c12"/><text x="958" y="129" text-anchor="middle" style="font:800 11px Consolas,monospace;fill:#0a0c12">6</text>
+    <text x="933" y="214" text-anchor="middle" class="n">BRIEF</text>
+    <text x="933" y="232" text-anchor="middle" class="d">6-section</text>
+    <text x="933" y="247" text-anchor="middle" class="d">tactical report</text>
+  </g>
+  <g>
+    <circle cx="1100" cy="150" r="44" fill="#2ecc71" opacity="0"><animate attributeName="opacity" values="0;0;.28;0;0" keyTimes="0;0.840;0.860;0.960;1" dur="7.0s" repeatCount="indefinite"/><animate attributeName="r" values="34;34;50;56;34" keyTimes="0;0.840;0.860;0.960;1" dur="7.0s" repeatCount="indefinite"/></circle>
+    <circle cx="1100" cy="150" r="34" fill="#0f111a" stroke="#2ecc71" stroke-width="2"/>
+    <circle cx="1100" cy="150" r="40" fill="none" stroke="#2ecc71" stroke-opacity=".5" stroke-dasharray="3 9" class="spin"/>
+    <text x="1100" y="159" text-anchor="middle" style="font-size:24px">🔊</text>
+    <circle cx="1125" cy="125" r="10" fill="#2ecc71"/><text x="1125" y="129" text-anchor="middle" style="font:800 11px Consolas,monospace;fill:#0a0c12">7</text>
+    <text x="1100" y="214" text-anchor="middle" class="n">DELIVER</text>
+    <text x="1100" y="232" text-anchor="middle" class="d">render panel</text>
+    <text x="1100" y="247" text-anchor="middle" class="d">+ speak aloud</text>
+  </g>
+  <rect x="0" y="147" width="60" height="6" rx="3" fill="url(#trail)"><animateMotion dur="7.0s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;.86;1" calcMode="linear" path="M40 0 H1040"/></rect>
+  <circle r="8" cy="0" fill="#e8f5ee"><animateMotion dur="7.0s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;.86;1" calcMode="linear" path="M100 150 H1100"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;.86;.9" dur="7.0s" repeatCount="indefinite"/></circle>
+  <rect x="40" y="266" width="700" height="186" rx="14" fill="#0f111a" stroke="#1f3a2c"/>
+  <text x="60" y="290" class="h" fill="#f39c12" style="font-size:11px">TACTICAL BRIEFING</text>
+  <text x="720" y="290" text-anchor="end" class="d" style="fill:#5a6e7a">illustrative output</text>
+  <g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.08;0.12;0.92;1" dur="8.0s" repeatCount="indefinite"/>
+    <text x="60" y="318" class="k" fill="#2ecc71" style="fill:#2ecc71">🔍 OBSERVATIONS</text><text x="240" y="318" class="v">collapsed wall · 2 people visible in debris</text></g>
+  <g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.18;0.22;0.92;1" dur="8.0s" repeatCount="indefinite"/>
+    <text x="60" y="344" class="k" fill="#dc2626" style="fill:#dc2626">🚨 IMMEDIATE</text><text x="240" y="344" class="v">cordon zone · shore up structure · triage</text></g>
+  <g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.28;0.32;0.92;1" dur="8.0s" repeatCount="indefinite"/>
+    <text x="60" y="370" class="k" fill="#3b82f6" style="fill:#3b82f6">👥 TEAM</text><text x="240" y="370" class="v">1 USAR sub-team + medical first responders</text></g>
+  <g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.38;0.42;0.92;1" dur="8.0s" repeatCount="indefinite"/>
+    <text x="60" y="396" class="k" fill="#a78bfa" style="fill:#a78bfa">🗺️ STRATEGY</text><text x="240" y="396" class="v">sector search → void probe → extricate</text></g>
+  <g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.48;0.52;0.92;1" dur="8.0s" repeatCount="indefinite"/>
+    <text x="60" y="422" class="k" fill="#f39c12" style="fill:#f39c12">📦 EQUIPMENT</text><text x="240" y="422" class="v">thermal cam · hydraulic cutter · stretchers</text></g>
+  <rect x="780" y="266" width="380" height="186" rx="14" fill="#0f111a" stroke="#1f3a2c"/>
+  <text x="800" y="290" class="h" fill="#dc2626" style="font-size:11px">⚠️ RISK LEVEL</text>
+  <rect x="800" y="308" width="340" height="16" rx="8" fill="#1a1c2e"/>
+  <rect x="800" y="308" width="60" height="16" rx="8" fill="#2ecc71">
+    <animate attributeName="width" values="68;68;170;170;255;255;340;340;68" keyTimes="0;.2;.25;.45;.5;.7;.75;.95;1" dur="8.0s" repeatCount="indefinite"/>
+    <animate attributeName="fill" values="#2ecc71;#2ecc71;#f1c40f;#f1c40f;#f39c12;#f39c12;#dc2626;#dc2626;#2ecc71" keyTimes="0;.2;.25;.45;.5;.7;.75;.95;1" dur="8.0s" repeatCount="indefinite"/>
+  </rect>
+  <text x="800" y="362" style="font:800 30px 'Segoe UI',Arial,sans-serif;letter-spacing:4px;fill:#2ecc71" opacity="0">LOW<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.001;0.245;0.25;1" dur="8.0s" calcMode="discrete" repeatCount="indefinite"/></text>
+  <text x="800" y="362" style="font:800 30px 'Segoe UI',Arial,sans-serif;letter-spacing:4px;fill:#f1c40f" opacity="0">MEDIUM<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.251;0.495;0.500;1" dur="8.0s" calcMode="discrete" repeatCount="indefinite"/></text>
+  <text x="800" y="362" style="font:800 30px 'Segoe UI',Arial,sans-serif;letter-spacing:4px;fill:#f39c12" opacity="0">HIGH<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.501;0.745;0.750;1" dur="8.0s" calcMode="discrete" repeatCount="indefinite"/></text>
+  <text x="800" y="362" style="font:800 30px 'Segoe UI',Arial,sans-serif;letter-spacing:4px;fill:#dc2626" opacity="0">CRITICAL<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.751;0.995;1.000;1" dur="8.0s" calcMode="discrete" repeatCount="indefinite"/></text>
+  <text x="800" y="394" class="d">quota (429)  → "⚠️ AI limit reached"</text>
+  <text x="800" y="412" class="d">bad image    → 500 + JSON error</text>
+  <text x="800" y="430" class="d">model        → gemini-3-flash-preview</text>
+</svg>

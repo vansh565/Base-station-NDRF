@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 552" width="1200" height="552" role="img" aria-label="Voice assistant Fateh: speech recognition feeding a priority-ordered intent router">
+  <defs><style>
+    text{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif}
+    .h{font-size:13px;font-weight:800;letter-spacing:3px}
+    .d{font:500 11.5px Consolas,'Courier New',monospace;fill:#8a9bae}
+    .r{font:600 12.5px Consolas,'Courier New',monospace;fill:#c8d1e6}
+    .a{font:500 12px Consolas,'Courier New',monospace;fill:#5a6e7a}
+    .q{font:600 15px Consolas,'Courier New',monospace;fill:#e8f5ee}
+    .flow{stroke:#2ecc71;stroke-width:2.2;fill:none;stroke-dasharray:8 6;animation:flow .9s linear infinite}
+    @keyframes flow{to{stroke-dashoffset:-28}}
+    .bar{animation:eq .9s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+    @keyframes eq{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+  </style></defs>
+  <rect width="1200" height="552" rx="18" fill="#0a0c12"/>
+  <text x="40" y="44" class="h" fill="#2ecc71">VOICE ASSISTANT “FATEH” · INTENT ROUTER</text>
+  <text x="40" y="64" class="d">render2.js · recognition.onresult → takeCommand(transcript) — first match wins, top to bottom</text>
+  <g transform="translate(170 150)">
+    <circle r="30" fill="#2ecc71" fill-opacity=".12" stroke="#2ecc71" stroke-width="2"/>
+    <circle r="30" fill="none" stroke="#2ecc71"><animate attributeName="r" values="30;60" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="1.8s" repeatCount="indefinite"/></circle>
+    <circle r="30" fill="none" stroke="#2ecc71"><animate attributeName="r" values="30;60" dur="1.8s" begin=".9s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="1.8s" begin=".9s" repeatCount="indefinite"/></circle>
+    <text y="9" text-anchor="middle" style="font-size:26px">🎙️</text>
+  </g>
+  <text x="170" y="210" text-anchor="middle" class="d">operator speaks</text>
+  <path d="M170 220 V246" class="flow"/>
+  <rect x="50" y="250" width="240" height="70" rx="12" fill="#0f111a" stroke="#3b82f6"/>
+  <text x="170" y="274" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e8f5ee">Web Speech API</text>
+  <text x="170" y="292" text-anchor="middle" class="d">continuous · lang en-IN</text>
+  <text x="170" y="308" text-anchor="middle" class="d">auto-restart after 1 s</text>
+  <path d="M170 320 V346" class="flow"/>
+  <rect x="40" y="350" width="260" height="56" rx="28" fill="#2ecc71" fill-opacity=".08" stroke="#2ecc71"/>
+  <text x="170" y="383" text-anchor="middle" class="q" opacity="0">“hello fateh”<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.0001;0.2499;0.2500;1" calcMode="discrete" dur="16.0s" repeatCount="indefinite"/></text>
+  <text x="170" y="383" text-anchor="middle" class="q" opacity="0">“weather in dehradun”<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.2500;0.4999;0.5000;1" calcMode="discrete" dur="16.0s" repeatCount="indefinite"/></text>
+  <text x="170" y="383" text-anchor="middle" class="q" opacity="0">“route to rishikesh”<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.5000;0.7499;0.7500;1" calcMode="discrete" dur="16.0s" repeatCount="indefinite"/></text>
+  <text x="170" y="383" text-anchor="middle" class="q" opacity="0">“search equipment rope”<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.7500;0.9999;1.0000;1" calcMode="discrete" dur="16.0s" repeatCount="indefinite"/></text>
+  <text x="170" y="430" text-anchor="middle" class="d">.toLowerCase() → history log</text>
+  <path d="M300 378 C340 378 340 121.0 380 121.0" class="flow"/>
+  <rect x="380" y="74" width="460" height="448" rx="14" fill="#0f111a" stroke="#1f3a2c"/>
+  <text x="390" y="94" class="h" fill="#3b82f6" style="font-size:11px">PRIORITY · MATCH</text><text x="830" y="94" text-anchor="end" class="h" fill="#3b82f6" style="font-size:11px">HANDLER</text>
+  <rect x="390" y="107" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="126" class="a">01</text><text x="432" y="126" class="r">"stop camera"</text>
+  <rect x="390" y="141" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="160" class="a">02</text><text x="432" y="160" class="r">"start camera"</text>
+  <rect x="390" y="175" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="194" class="a">03</text><text x="432" y="194" class="r">"route to …"</text>
+  <rect x="390" y="209" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="228" class="a">04</text><text x="432" y="228" class="r">"help" · "documentation"</text>
+  <rect x="390" y="243" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="262" class="a">05</text><text x="432" y="262" class="r">"analyze image|frame"</text>
+  <rect x="390" y="277" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="296" class="a">06</text><text x="432" y="296" class="r">"search equipment …"</text>
+  <rect x="390" y="311" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="330" class="a">07</text><text x="432" y="330" class="r">static: hello · drone · …</text>
+  <rect x="390" y="345" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="364" class="a">08</text><text x="432" y="364" class="r">"weather …"</text>
+  <rect x="390" y="379" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="398" class="a">09</text><text x="432" y="398" class="r">"time"</text>
+  <rect x="390" y="413" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="432" class="a">10</text><text x="432" y="432" class="r">"date"</text>
+  <rect x="390" y="447" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="466" class="a">11</text><text x="432" y="466" class="r">"human only"</text>
+  <rect x="390" y="481" width="440" height="28" rx="7" fill="#0a0c12" stroke="#1a2c22"/>
+  <text x="402" y="500" class="a">12</text><text x="432" y="500" class="r">* anything else</text>
+  <g>
+    <rect x="386" y="0" width="448" height="34" rx="8" fill="#2ecc71" fill-opacity=".14" stroke="#2ecc71" stroke-width="2"/>
+    <line x1="834" y1="17.0" x2="880" y2="17.0" class="flow"/>
+    <circle cx="880" cy="17.0" r="5" fill="#2ecc71"/>
+    <animateTransform attributeName="transform" type="translate" values="0 104;0 104;0 308;0 308;0 104;0 104;0 342;0 342;0 104;0 104;0 172;0 172;0 104;0 104;0 274;0 274;0 104" keyTimes="0.0000;0.0200;0.1000;0.2497;0.2500;0.2700;0.3500;0.4998;0.5000;0.5200;0.6000;0.7498;0.7500;0.7700;0.8500;0.9998;1.0000" dur="16.0s" repeatCount="indefinite"/>
+  </g>
+  <text x="818" y="126" text-anchor="end" class="a" style="fill:#6b8a7a">stopCamera()</text>
+  <text x="818" y="160" text-anchor="end" class="a" style="fill:#6b8a7a">startCamera() + open panel</text>
+  <text x="818" y="194" text-anchor="end" class="a" style="fill:#6b8a7a">Google Directions (DRIVING)</text>
+  <text x="818" y="228" text-anchor="end" class="a" style="fill:#6b8a7a">showDocumentation()</text>
+  <text x="818" y="262" text-anchor="end" class="a" style="fill:#6b8a7a">analyzeLiveFrame() → Gemini</text>
+  <text x="818" y="296" text-anchor="end" class="a" style="fill:#6b8a7a">searchEquipment(term)</text>
+  <text x="818" y="330" text-anchor="end" class="a" style="fill:#6b8a7a">canned reply (13 keys)</text>
+  <text x="818" y="364" text-anchor="end" class="a" style="fill:#6b8a7a">Open-Meteo → risk engine</text>
+  <text x="818" y="398" text-anchor="end" class="a" style="fill:#6b8a7a">speak current time</text>
+  <text x="818" y="432" text-anchor="end" class="a" style="fill:#6b8a7a">speak today's date</text>
+  <text x="818" y="466" text-anchor="end" class="a" style="fill:#6b8a7a">toggle person filter</text>
+  <text x="818" y="500" text-anchor="end" class="a" style="fill:#6b8a7a">suggest "help"</text>
+  <rect x="880" y="74" width="290" height="448" rx="14" fill="#0f111a" stroke="#2ecc71" stroke-opacity=".5"/>
+  <text x="900" y="98" class="h" fill="#2ecc71" style="font-size:11px">🔊 SPOKEN RESPONSE</text>
+  <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.1050;0.2499;0.2500;1" calcMode="discrete" dur="16.0s" repeatCount="indefinite"/>
+    <text x="900" y="144" class="d" style="fill:#5a6e7a">matched rule #07</text>
+    <text x="900" y="174" class="r" style="fill:#86efac">Hello! I am Fateh, your NDRF</text>
+    <text x="900" y="194" class="r" style="fill:#86efac">assistant. How can I help you?</text></g>
+  <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.3550;0.4999;0.5000;1" calcMode="discrete" dur="16.0s" repeatCount="indefinite"/>
+    <text x="900" y="144" class="d" style="fill:#5a6e7a">matched rule #08</text>
+    <text x="900" y="174" class="r" style="fill:#86efac">Temperature in dehradun is 24°C.</text>
+    <text x="900" y="194" class="r" style="fill:#86efac">AI Decision: ✅ Safe conditions.</text></g>
+  <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.6050;0.7499;0.7500;1" calcMode="discrete" dur="16.0s" repeatCount="indefinite"/>
+    <text x="900" y="144" class="d" style="fill:#5a6e7a">matched rule #03</text>
+    <text x="900" y="174" class="r" style="fill:#86efac">Distance 44 km, time 1 hour.</text>
+    <text x="900" y="194" class="r" style="fill:#86efac">route drawn on Google Map</text></g>
+  <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.8550;0.9999;1.0000;1" calcMode="discrete" dur="16.0s" repeatCount="indefinite"/>
+    <text x="900" y="144" class="d" style="fill:#5a6e7a">matched rule #06</text>
+    <text x="900" y="174" class="r" style="fill:#86efac">Found 16 items matching rope</text>
+    <text x="900" y="194" class="r" style="fill:#86efac">→ equipment panel opens</text></g>
+  <rect x="900" y="464" width="8" height="14" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.00s"/>
+  <rect x="915" y="457" width="8" height="21" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.11s"/>
+  <rect x="930" y="450" width="8" height="28" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.22s"/>
+  <rect x="945" y="443" width="8" height="35" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.33s"/>
+  <rect x="960" y="436" width="8" height="42" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.44s"/>
+  <rect x="975" y="459" width="8" height="19" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.55s"/>
+  <rect x="990" y="452" width="8" height="26" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.66s"/>
+  <rect x="1005" y="445" width="8" height="33" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.00s"/>
+  <rect x="1020" y="438" width="8" height="40" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.11s"/>
+  <rect x="1035" y="461" width="8" height="17" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.22s"/>
+  <rect x="1050" y="454" width="8" height="24" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.33s"/>
+  <rect x="1065" y="447" width="8" height="31" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.44s"/>
+  <rect x="1080" y="440" width="8" height="38" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.55s"/>
+  <rect x="1095" y="463" width="8" height="15" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.66s"/>
+  <rect x="1110" y="456" width="8" height="22" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.00s"/>
+  <rect x="1125" y="449" width="8" height="29" rx="3" fill="#2ecc71" class="bar" style="animation-delay:0.11s"/>
+  <text x="900" y="500" class="d">SpeechSynthesis · en-IN voice</text>
+  <text x="900" y="514" class="d" style="fill:#5a6e7a">sample replies are illustrative</text>
+</svg>

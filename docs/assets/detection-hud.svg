@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-label="Live camera feed with COCO-SSD bounding boxes and human-only mode">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141826"/><stop offset=".6" stop-color="#1b2030"/><stop offset="1" stop-color="#262a33"/>
+    </linearGradient>
+    <linearGradient id="scan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2ecc71" stop-opacity="0"/><stop offset="1" stop-color="#2ecc71" stop-opacity=".18"/>
+    </linearGradient>
+    <clipPath id="cam"><rect x="40" y="40" width="760" height="320" rx="12"/></clipPath>
+    <style>
+      text{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif}
+      .m{font:700 12px Consolas,'Courier New',monospace;letter-spacing:1px}
+      .d{font:500 12px Consolas,'Courier New',monospace;fill:#8a9bae}
+      .h{font-size:13px;font-weight:800;letter-spacing:3px}
+      .blink{animation:blink 1s steps(1) infinite}
+      @keyframes blink{50%{opacity:0}}
+      .j1{animation:j1 2.4s ease-in-out infinite}
+      .j2{animation:j2 3.1s ease-in-out infinite}
+      .j3{animation:j3 2.7s ease-in-out infinite}
+      @keyframes j1{0%,100%{transform:translate(0,0)}50%{transform:translate(6px,-2px)}}
+      @keyframes j2{0%,100%{transform:translate(0,0)}50%{transform:translate(-5px,1px)}}
+      @keyframes j3{0%,100%{transform:translate(0,0)}50%{transform:translate(8px,0)}}
+      .box{animation:box .1s steps(2) infinite}
+      @keyframes box{50%{stroke-opacity:.8}}
+    </style>
+  </defs>
+  <rect width="1200" height="400" rx="18" fill="#0a0c12"/>
+
+  <!-- ===== camera viewport ===== -->
+  <g clip-path="url(#cam)">
+    <rect x="40" y="40" width="760" height="320" fill="url(#sky)"/>
+    <!-- rubble skyline -->
+    <path d="M40 300 L110 250 L150 270 L210 210 L250 236 L300 200 L330 232 L380 220 L430 260 L470 240 L520 268 L600 230 L650 250 L700 214 L760 246 L800 236 V360 H40Z" fill="#1f232c"/>
+    <path d="M40 330 L120 300 L200 318 L290 296 L380 322 L470 300 L560 324 L650 306 L740 326 L800 312 V360 H40Z" fill="#2a2e37"/>
+    <path d="M300 200 L300 150 L340 150 L345 200" fill="#232733"/><path d="M640 240 L640 170 L690 176 L700 214" fill="#232733"/>
+
+    <!-- person 1 -->
+    <g class="j1"><g fill="#4b5563"><circle cx="200" cy="232" r="13"/><rect x="186" y="246" width="28" height="56" rx="10"/></g>
+      <rect x="176" y="212" width="50" height="96" fill="none" stroke="#2ecc71" stroke-width="2.5" class="box"/>
+      <rect x="176" y="192" width="98" height="18" fill="#000" fill-opacity=".6"/><text x="180" y="205" class="m" fill="#2ecc71">person 91%</text></g>
+    <!-- person 2 (partly in debris) -->
+    <g class="j2"><g fill="#4b5563"><circle cx="455" cy="262" r="11"/><rect x="443" y="274" width="24" height="34" rx="8"/></g>
+      <rect x="434" y="244" width="44" height="70" fill="none" stroke="#2ecc71" stroke-width="2.5" class="box"/>
+      <rect x="434" y="224" width="98" height="18" fill="#000" fill-opacity=".6"/><text x="438" y="237" class="m" fill="#2ecc71">person 84%</text></g>
+
+    <!-- non-person objects: hidden in human-only phase -->
+    <g>
+      <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;.48;.5;.98;1" dur="10s" repeatCount="indefinite"/>
+      <g class="j3"><g fill="#3f4652"><rect x="590" y="282" width="120" height="30" rx="8"/><rect x="612" y="262" width="70" height="26" rx="8"/><circle cx="618" cy="314" r="10" fill="#111"/><circle cx="684" cy="314" r="10" fill="#111"/></g>
+        <rect x="584" y="256" width="132" height="70" fill="none" stroke="#f39c12" stroke-width="2.5" class="box"/>
+        <rect x="584" y="236" width="74" height="18" fill="#000" fill-opacity=".6"/><text x="588" y="249" class="m" fill="#f39c12">car 78%</text></g>
+      <g class="j1"><g fill="#4b5563"><ellipse cx="300" cy="296" rx="22" ry="10"/><circle cx="322" cy="286" r="8"/><rect x="284" y="300" width="4" height="12"/><rect x="310" y="300" width="4" height="12"/></g>
+        <rect x="272" y="272" width="62" height="44" fill="none" stroke="#3b82f6" stroke-width="2.5" class="box"/>
+        <rect x="272" y="252" width="74" height="18" fill="#000" fill-opacity=".6"/><text x="276" y="265" class="m" fill="#3b82f6">dog 74%</text></g>
+    </g>
+
+    <!-- scan line -->
+    <rect x="40" y="-60" width="760" height="60" fill="url(#scan)"><animate attributeName="y" values="-20;360" dur="3s" repeatCount="indefinite"/></rect>
+  </g>
+
+  <!-- HUD -->
+  <rect x="40" y="40" width="760" height="320" rx="12" fill="none" stroke="#2ecc71" stroke-opacity=".5"/>
+  <g stroke="#2ecc71" stroke-width="2" fill="none" opacity=".9">
+    <path d="M52 76V52H76M788 76V52H764M52 324V348H76M788 324V348H764"/>
+    <circle cx="420" cy="200" r="22" stroke-opacity=".5"/><path d="M420 168V186M420 214V232M388 200H406M434 200H452" stroke-opacity=".7"/>
+  </g>
+  <circle cx="72" cy="70" r="6" fill="#dc2626" class="blink"/>
+  <text x="84" y="75" class="m" fill="#e8f5ee">FEED 01 · LIVE</text>
+  <text x="784" y="75" text-anchor="end" class="m" fill="#2ecc71">COCO-SSD · mobilenet_v2</text>
+  <text x="60" y="344" class="m" fill="#8a9bae">1280×720 · facingMode: environment</text>
+  <g>
+    <text x="784" y="344" text-anchor="end" class="m" fill="#2ecc71">30 FPS<animate attributeName="opacity" values="1;0;1" keyTimes="0;.5;1" calcMode="discrete" dur="1.2s" repeatCount="indefinite"/></text>
+    <text x="784" y="344" text-anchor="end" class="m" fill="#2ecc71" opacity="0">29 FPS<animate attributeName="opacity" values="0;1;0" keyTimes="0;.5;1" calcMode="discrete" dur="1.2s" repeatCount="indefinite"/></text>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.49;.5;.99;1" calcMode="discrete" dur="10s" repeatCount="indefinite"/>
+    <rect x="330" y="56" width="180" height="26" rx="13" fill="#2ecc71"/>
+    <text x="420" y="74" text-anchor="middle" class="m" fill="#0a0c12">👤 HUMAN ONLY MODE</text>
+  </g>
+
+  <!-- ===== detection list ===== -->
+  <rect x="830" y="40" width="330" height="320" rx="14" fill="#0f111a" stroke="#1f3a2c"/>
+  <g>
+    <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;.49;.5;.99;1" calcMode="discrete" dur="10s" repeatCount="indefinite"/>
+    <text x="850" y="72" class="h" fill="#2ecc71">🎯 DETECTED (4)</text>
+    <g class="d"><text x="850" y="108">person</text><text x="1140" y="108" text-anchor="end" fill="#2ecc71" style="fill:#2ecc71">91%</text>
+      <text x="850" y="140">person</text><text x="1140" y="140" text-anchor="end" style="fill:#2ecc71">84%</text>
+      <text x="850" y="172">car</text><text x="1140" y="172" text-anchor="end" style="fill:#f39c12">78%</text>
+      <text x="850" y="204">dog</text><text x="1140" y="204" text-anchor="end" style="fill:#3b82f6">74%</text></g>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.49;.5;.99;1" calcMode="discrete" dur="10s" repeatCount="indefinite"/>
+    <text x="850" y="72" class="h" fill="#2ecc71">🎯 DETECTED (2)</text>
+    <g class="d"><text x="850" y="108">person</text><text x="1140" y="108" text-anchor="end" style="fill:#2ecc71">91%</text>
+      <text x="850" y="140">person</text><text x="1140" y="140" text-anchor="end" style="fill:#2ecc71">84%</text></g>
+  </g>
+  <path d="M850 222H1140" stroke="#1f3a2c"/>
+  <text x="850" y="248" class="d">loop   requestAnimationFrame</text>
+  <text x="850" y="268" class="d">detect every 100 ms (throttled)</text>
+  <text x="850" y="288" class="d">colors person · car · other</text>
+  <circle cx="1052" cy="284" r="5" fill="#2ecc71"/><circle cx="1068" cy="284" r="5" fill="#f39c12"/><circle cx="1084" cy="284" r="5" fill="#3b82f6"/>
+  <text x="850" y="316" class="d">toggles: boxes · human-only</text>
+  <text x="850" y="340" class="d" style="fill:#5a6e7a">scene illustrative · runs in-browser</text>
+</svg>
